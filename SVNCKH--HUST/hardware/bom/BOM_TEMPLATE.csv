@@ -1,0 +1,8 @@
+category,item,model,quantity,status,owner,notes
+MCU,Microcontroller,ESP32-S3,1,available,EE2,
+Sensor,Vibration,ADXL345,1,available,MS2,
+Sensor,Current,ACS724,1,planned,ET1,
+Sensor,Motor temperature,PT100 + MAX31865,1,planned,ET1,
+Sensor,RPM,US5881 Hall + magnet,1,planned,EE2,
+Sensor,Ambient,DHT22,1,available,MS2,
+Display,OLED,OLED module,1,planned,EE2,

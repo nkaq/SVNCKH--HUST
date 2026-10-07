@@ -1,0 +1,69 @@
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# IDE
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Arduino / PlatformIO / ESP32
+.pio/
+build/
+Build/
+*.elf
+*.bin
+*.map
+
+# MATLAB
+*.asv
+*.autosave
+slprj/
+codegen/
+
+# ANSYS / CAE heavy outputs
+*.rst
+*.rth
+*.lock
+*.tmp
+*.err
+*.out
+*_files/
+dp0/
+user_files/
+
+# SolidWorks temporary
+~$*
+*.bak
+
+# Large/private dataset
+data/raw/
+data/private/
+data/external/
+*.h5
+*.hdf5
+
+# Logs/generated
+*.log
+logs/
+tmp/
+temp/
+
+# Secrets
+.env
+.env.*
+secrets.*
+credentials.*
+*.pem
+*.key
+token.txt
+wifi_credentials.*
