@@ -1,0 +1,26 @@
+name: Bug Report
+description: Báo lỗi firmware/software/hardware interface
+title: "[BUG] "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Logs / screenshots / measurements
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Board, firmware commit, sensor, setup version

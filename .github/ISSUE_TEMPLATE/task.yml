@@ -1,0 +1,34 @@
+name: Project Task
+description: Giao task kỹ thuật
+title: "[TASK] "
+labels: ["task"]
+body:
+  - type: dropdown
+    id: member
+    attributes:
+      label: Member
+      options: [ME1, MS2, EE2, ET1, IT2]
+    validations:
+      required: true
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal
+    validations:
+      required: true
+  - type: textarea
+    id: deliverables
+    attributes:
+      label: Deliverables
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance Criteria
+    validations:
+      required: true
+  - type: textarea
+    id: dependency
+    attributes:
+      label: Dependencies

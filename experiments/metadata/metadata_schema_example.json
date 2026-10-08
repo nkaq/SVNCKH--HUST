@@ -1,0 +1,20 @@
+{
+  "recording_id": "M01_IMB1_R0900_L0_R02",
+  "motor_id": "M01",
+  "fixture_version": "FX_v0.1",
+  "fault": "imbalance",
+  "severity": "IMB1",
+  "rpm_setpoint": 900,
+  "load_condition": "L0",
+  "run_id": 2,
+  "duration_s": 15,
+  "sensors": {
+    "vibration": "ADXL345",
+    "current": "ACS724",
+    "motor_temperature": "PT100_MAX31865",
+    "rpm": "US5881",
+    "ambient": "DHT22"
+  },
+  "qc_status": "PASS",
+  "notes": ""
+}

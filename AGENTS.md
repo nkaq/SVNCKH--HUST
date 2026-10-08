@@ -1,0 +1,133 @@
+# AGENTS.md — Codex instructions for SVNCKH--HUST
+
+These instructions apply to the whole repository.
+
+## Mission
+
+Assist the HUST research team with code review, implementation support, consistency checks, and repository hygiene for:
+
+**Adaptive Multimodal TinyML for Drift-Robust Predictive Maintenance on Resource-Constrained Edge Microcontrollers.**
+
+## Locked project facts
+
+- MCU: ESP32-S3.
+- Main accelerometer: ADXL345.
+- Current sensor: ACS724.
+- Motor temperature: PT100 + MAX31865.
+- RPM reference: US5881 Hall + magnet.
+- Ambient context: DHT22.
+- Display: OLED.
+- Engineering Validation Data is not Dataset v0.1.
+- Ground Truth comes from the imposed physical condition, never from model output or FFT inspection.
+
+Do not silently replace these components or redefine the research scope.
+
+## Repository architecture
+
+- `hardware/mechanical/` — ME1
+- `experiments/sensor_characterization/` — MS2
+- `firmware/esp32s3/` — EE2
+- `hardware/electronics/` — ET1
+- `ml/`, `software/`, `data/`, `results/` — IT2
+
+Production artifacts belong to subsystem folders. `members/` is only for personal notes/drafts.
+
+## Review policy
+
+When reviewing a Pull Request:
+
+1. Read the PR goal and acceptance criteria.
+2. Inspect the diff and surrounding code/docs.
+3. Check repository structure and naming.
+4. Check whether tests/evidence match the claimed change.
+5. Identify concrete defects, regressions, data-quality risks, reproducibility problems, or unsafe assumptions.
+6. Separate:
+   - **BLOCKER** — should not merge.
+   - **MAJOR** — should be fixed or explicitly accepted.
+   - **MINOR** — quality/documentation improvement.
+   - **QUESTION** — needs clarification.
+7. Avoid style-only noise unless it affects maintainability or correctness.
+8. Never invent measured results.
+9. Never approve a physical safety claim solely from repository text.
+10. Human final gate is required for:
+   - mechanical safety;
+   - electrical voltage/current compatibility;
+   - experiment Ground Truth;
+   - dataset inclusion/exclusion;
+   - architecture changes;
+   - research claims;
+   - release to `main`.
+
+## Domain-specific checks
+
+### Firmware / ESP32-S3
+Focus on:
+- blocking code in acquisition paths;
+- timestamp correctness;
+- buffer/FIFO overflow;
+- dropped samples;
+- I2C/SPI error handling;
+- ISR safety;
+- memory/stack use;
+- sampling assumptions;
+- error counters and recovery;
+- no per-sample Serial printing in the production acquisition path.
+
+### Data / ML
+Focus on:
+- recording-level leakage;
+- random-window leakage;
+- preprocessing train/test contamination;
+- reproducibility;
+- label provenance;
+- inconsistent metadata;
+- metric misuse;
+- unsupported claims;
+- resource-cost reporting for edge deployment.
+
+### Experiments
+Focus on:
+- Ground Truth provenance;
+- fixture/setup version;
+- sensor mounting;
+- sampling configuration;
+- repetitions;
+- QC criteria;
+- confounders;
+- distinction between hypothesis and measured result.
+
+### Electronics
+Focus on:
+- documented voltage levels;
+- power/ground assumptions;
+- pull-ups and interface compatibility;
+- ADC range assumptions;
+- protection/conditioning documentation;
+- connector/pinout consistency.
+Do not declare wiring physically safe without human verification.
+
+### Mechanical
+Focus on:
+- versioning;
+- assembly/drawing/BOM consistency;
+- sensor mounting repeatability;
+- fixture acceptance criteria;
+- alignment and fault-creation traceability.
+Binary CAD cannot be fully reviewed from text alone; require human CAD review.
+
+## Pull Request output
+
+Prefer a concise review:
+
+```text
+Summary
+Blockers
+Major findings
+Minor findings
+Questions
+Evidence/tests checked
+Human gate required?
+Recommendation: MERGE / FIX THEN REVIEW / HUMAN DECISION
+```
+
+Do not merge on behalf of the team unless explicitly authorized.

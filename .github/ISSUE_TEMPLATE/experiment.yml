@@ -1,0 +1,45 @@
+name: Experiment Task
+description: Task cho thí nghiệm / data acquisition
+title: "[EXP] "
+labels: ["experiment"]
+body:
+  - type: dropdown
+    id: owner
+    attributes:
+      label: Primary owner
+      options: [ME1, MS2, EE2, ET1, IT2]
+    validations:
+      required: true
+  - type: textarea
+    id: objective
+    attributes:
+      label: Objective
+      description: Câu hỏi thí nghiệm cần trả lời
+    validations:
+      required: true
+  - type: textarea
+    id: ground_truth
+    attributes:
+      label: Ground Truth
+      description: Condition vật lý nào tạo label/trạng thái?
+    validations:
+      required: true
+  - type: textarea
+    id: setup
+    attributes:
+      label: Setup / fixture / sensors
+    validations:
+      required: true
+  - type: textarea
+    id: measurements
+    attributes:
+      label: Measurements
+      description: Signal, sampling, duration, repetitions
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: PASS / FAIL criteria
+    validations:
+      required: true
