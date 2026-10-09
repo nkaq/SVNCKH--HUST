@@ -1,7 +1,107 @@
-# Điền GitHub username sau khi team chốt.
-# Ví dụ:
-# /hardware/mechanical/ @me1_username
-# /experiments/sensor_characterization/ @ms2_username
-# /firmware/esp32s3/ @ee2_username
-# /hardware/electronics/ @et1_username
-# /ml/ @it2_username
+# ============================================================
+# NCKH - CODEOWNERS V3
+# Repository: nkaq/SVNCKH--HUST
+# ============================================================
+
+# ------------------------------------------------------------
+# PROJECT / INTEGRATION
+# ME1
+# ------------------------------------------------------------
+
+/README.md                         @nkaq
+/AGENTS.md                         @nkaq
+/.github/                          @nkaq
+
+/docs/architecture/                @nkaq
+/docs/plans/                       @nkaq
+/docs/project_management/          @nkaq
+/experiments/protocols/            @nkaq
+
+/assets/diagrams/                  @nkaq
+/assets/system_images/             @nkaq
+
+/presentations/                    @nkaq
+
+
+# ------------------------------------------------------------
+# MECHANICAL / TESTBENCH
+# ME1
+# ------------------------------------------------------------
+
+/hardware/mechanical/              @nkaq
+
+
+# ------------------------------------------------------------
+# BOM
+# ME1 + ET1
+# ------------------------------------------------------------
+
+/hardware/bom/                     @nkaq @tiendatvu13
+
+
+# ------------------------------------------------------------
+# SENSOR CHARACTERIZATION / SENSOR HEALTH
+# MS2
+# ------------------------------------------------------------
+
+/experiments/sensor_characterization/ @hquanvu12
+
+
+# ------------------------------------------------------------
+# EMBEDDED FIRMWARE / ACQUISITION
+# EE2
+# ------------------------------------------------------------
+
+/firmware/esp32s3/                 @dungnguyen13
+
+
+# ------------------------------------------------------------
+# ELECTRONICS / SENSOR INTERFACE
+# ET1
+# ------------------------------------------------------------
+
+/hardware/electronics/             @tiendatvu13
+
+
+# ------------------------------------------------------------
+# DATA / DSP / ML / TINYML
+# IT2
+# ------------------------------------------------------------
+
+/ml/                               @lebach181207-dev
+/software/                         @lebach181207-dev
+/data/                             @lebach181207-dev
+
+
+# ------------------------------------------------------------
+# SHARED: DRIFT
+# IT2 + MS2
+# More specific rule placed after /ml/
+# ------------------------------------------------------------
+
+/ml/drift_detection/               @lebach181207-dev @hquanvu12
+
+
+# ------------------------------------------------------------
+# SHARED: SERIAL LOGGER
+# IT2 + EE2
+# ------------------------------------------------------------
+
+/software/serial_logger/           @lebach181207-dev @dungnguyen13
+
+
+# ------------------------------------------------------------
+# RESULTS
+# ------------------------------------------------------------
+
+/results/figures/                  @lebach181207-dev @hquanvu12
+/results/tables/                   @lebach181207-dev @hquanvu12
+/results/benchmarks/               @lebach181207-dev @dungnguyen13
+/results/model_results/            @lebach181207-dev
+
+
+# ------------------------------------------------------------
+# SIMULATIONS
+# ------------------------------------------------------------
+
+/simulations/                      @nkaq @lebach181207-dev
