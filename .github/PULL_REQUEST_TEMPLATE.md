@@ -5,7 +5,10 @@
 ## 1. Thông tin task
 
 **Member:** ME1 / MS2 / EE2 / ET1 / IT2  
-**Issue:** Closes #___  
+**Task source:** `docs/plans/weekXX/README.md`  
+**Task ID:** `WXX-MEMBER-NN`  
+**Issue (tùy chọn):** `Không có — task theo README tuần` / `Closes #<issue-thật>`  
+**Reviewer độc lập (không phải tác giả PR):** `@github-username`  
 **Branch:** `feature/...` / `fix/...` / `docs/...`  
 **Subsystem:** mechanical / sensors / firmware / electronics / data-ml / docs  
 **Target:** `dev` / `main`  
@@ -132,7 +135,7 @@ Nếu có, cập nhật docs liên quan trước khi merge.
 
 ## 8. Codex Review
 
-PR này phải được review theo `AGENTS.md` và:
+PR này phải được review **bằng tiếng Việt** theo `AGENTS.md` và:
 
 ```text
 docs/project_management/CODEX_REVIEW_WORKFLOW.md
@@ -184,7 +187,8 @@ Yêu cầu người thật review nếu PR ảnh hưởng:
 - [ ] Test/evidence được ghi
 - [ ] Không bịa measured result
 - [ ] Ground Truth không suy từ FFT/model
-- [ ] Codex findings đã xử lý hoặc được chấp nhận có lý do
+- [ ] Codex review đã `Completed` và findings được xử lý hoặc được chấp nhận có lý do; nếu không chạy, ghi lý do và human review thay thế
+- [ ] Có reviewer độc lập; nếu quy định bắt buộc Code Owner approval, người duyệt phải là code owner hợp lệ, không phải tác giả PR
 - [ ] Human gate hoàn thành nếu cần
 
 ## 11. Reviewer Decision
