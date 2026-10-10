@@ -47,7 +47,15 @@ Nếu thiếu Goal/acceptance/owner hoặc source không rõ, **hỏi lại**, k
 - Kiểm thay đổi API/schema/unit/timing/pin/fixture/fault/labels có version và thông báo owner tương ứng.
 - Kiểm không có secrets, file raw data không phù hợp, file accidental staging, benchmark fabricated.
 - Kiểm test có log/chứng cứ, phân biệt bench vs simulator vs unit test.
-- Khi Codex review tự kích hoạt ở GitHub, **giữ PR mở tới lúc có bằng chứng phiên review hiện tại đã hoàn tất** và findings được xử lý; dấu `Completed` là một ví dụ giao diện, không phải tiêu chuẩn phụ thuộc tên cố định.
+- **Trường hợp Codex hoạt động bình thường:** Giữ PR ở trạng thái Open cho tới khi xác nhận phiên Codex review hiện tại đã hoàn tất. Đọc và xử lý tất cả findings có căn cứ trước khi merge. `Completed` chỉ là một ví dụ về trạng thái giao diện, không phải điều kiện phụ thuộc tên cố định.
+
+- **Trường hợp Codex không khả dụng:** Nếu Codex không thể chạy do lỗi tích hợp, thiếu quyền hoặc hết hạn mức, phải ghi rõ lý do và bằng chứng trong PR. Khi đó cho phép sử dụng **human review độc lập** thay thế, không được tự coi Codex đã PASS.
+
+- **Điều kiện human review thay thế:** Reviewer phải là người khác tác giả PR, có chuyên môn phù hợp, kiểm tra diff, acceptance criteria, test evidence, rủi ro kỹ thuật/nghiên cứu và ghi rõ quyết định review trên GitHub.
+
+- **Human Gate vẫn bắt buộc:** Việc Codex không khả dụng không được dùng để bỏ qua phê duyệt liên quan đến an toàn cơ khí/điện, Ground Truth, dataset, kiến trúc hoặc scientific claims.
+
+- **Điều kiện merge:** PR chỉ được merge khi `repo-quality` PASS, findings có căn cứ đã được xử lý, reviewer độc lập đã hoàn tất phần kiểm tra theo quy định và Human Gate cần thiết đã được chấp thuận. Không merge chỉ vì Codex chưa đưa ra nhận xét hoặc nút merge đang sáng.
 - Codex findings phải bằng tiếng Việt, gồm `file:dòng`, nguyên nhân, rủi ro, cách sửa và kiểm chứng; bot có thể không luôn tuân thủ.
 
 ## 5. Bài toán automation đề xuất theo mức ưu tiên

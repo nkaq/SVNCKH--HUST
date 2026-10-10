@@ -2,22 +2,78 @@
 
 > Hướng dẫn xác minh luận điểm nghiên cứu. Dùng khi sửa `experiments/`, `data/`, `ml/`, `results/`, `docs/reports/` và khi PR ảnh hưởng kết luận khoa học.
 
-## 1. Phân tầng bằng chứng
+## 1. Phân loại bằng chứng và trạng thái phê duyệt
 
-Mỗi phát biểu kỹ thuật phải được gắn một loại sau:
+Mỗi phát biểu nghiên cứu phải phân biệt độc lập:
 
-| Trạng thái | Ví dụ diễn đạt đúng |
+1. `evidence_type`: nguồn gốc và bản chất của bằng chứng.
+2. `approval_status`: trạng thái phê duyệt của người có thẩm quyền.
+3. `evidence_ref`: đường dẫn tới dữ liệu, log, mô phỏng hoặc tài liệu chứng minh.
+4. `data_origin`: nguồn dữ liệu, nếu có liên quan.
+
+### 1.1. Loại bằng chứng — evidence_type
+
+| Loại | Ý nghĩa |
 |---|---|
-| `HYPOTHESIS` | "Có giả thuyết rằng sensor mounting ảnh hưởng phổ rung." |
-| `PLANNED` | "Dự kiến kiểm tra 3 setup với protocol X." |
-| `ENGINEERING_VALIDATION` | "Log kỹ thuật này đo trên prototype, chưa thuộc Dataset v0.1." |
-| `MEASURED` | "Theo recording/log được dẫn nguồn, giá trị đo là ..." |
-| `SIMULATED` | "ANSYS/MATLAB theo model và boundary condition ..., không phải bench test." |
-| `INFERRED` | "Dự đoán model trên split ..., không phải Ground Truth." |
-| `APPROVED_CLAIM` | "ME1/domain owner phê duyệt đối chiếu chứng cứ và giới hạn." |
+| `HYPOTHESIS` | Giả thuyết chưa được kiểm chứng. |
+| `PLANNED` | Thí nghiệm hoặc công việc dự kiến thực hiện. |
+| `MEASURED` | Kết quả đo thật có recording/log và metadata. |
+| `SIMULATED` | Kết quả mô phỏng có model, tham số và điều kiện biên. |
+| `INFERRED` | Kết quả suy luận hoặc dự đoán từ mô hình/thuật toán. |
 
-Nếu không có nguồn evidence, **không tự chọn số hoặc nêu đã PASS**.
+Không được trình bày `SIMULATED` hoặc `INFERRED` như
+kết quả `MEASURED`.
 
+### 1.2. Trạng thái phê duyệt — approval_status
+
+| Trạng thái | Ý nghĩa |
+|---|---|
+| `PENDING` | Chưa được người có thẩm quyền phê duyệt. |
+| `APPROVED` | Đã được phê duyệt trong phạm vi xác định. |
+| `REJECTED` | Không được chấp nhận. |
+| `NOT_APPLICABLE` | Không thuộc trường hợp yêu cầu phê duyệt. |
+
+Không dùng `NOT_APPLICABLE` để bỏ qua Human Gate
+bắt buộc của dự án.
+
+Phê duyệt không làm thay đổi bản chất bằng chứng.
+Kết quả mô phỏng được phê duyệt vẫn là `SIMULATED`,
+không tự trở thành `MEASURED`.
+
+### 1.3. Nguồn dữ liệu — data_origin
+
+Khi phát biểu sử dụng dữ liệu thực nghiệm, cần xác định:
+
+- `ENGINEERING_VALIDATION`: dữ liệu kiểm thử kỹ thuật.
+- `DATASET_V0_1`: dữ liệu thuộc dataset nghiên cứu đã được
+  chấp nhận theo protocol và tiêu chí hiện hành.
+- `NOT_APPLICABLE`: không áp dụng.
+
+`ENGINEERING_VALIDATION` luôn tách biệt với `DATASET_V0_1`.
+Không tự tái phân loại recording validation thành dataset
+sau khi fixture được nghiệm thu hoặc freeze.
+
+### 1.4. Ví dụ truy vết
+
+**Trường hợp A — Mô phỏng đã được phê duyệt**
+
+- `evidence_type: SIMULATED`
+- `approval_status: APPROVED`
+- `data_origin: NOT_APPLICABLE`
+- `evidence_ref`: mô hình, cấu hình và kết quả mô phỏng thực tế.
+
+**Trường hợp B — Kết quả đo thật chưa phê duyệt**
+
+- `evidence_type: MEASURED`
+- `approval_status: PENDING`
+- `data_origin: ENGINEERING_VALIDATION`
+- `evidence_ref`: recording, log và metadata thực tế.
+
+Các ví dụ trên chỉ minh họa cách phân loại,
+không khẳng định dự án đã có kết quả đo hoặc mô phỏng tương ứng.
+
+Nếu không có bằng chứng, không tự tạo số liệu,
+không tự gán `APPROVED` và không tuyên bố `PASS`.
 ## 2. Ground Truth và fault labels
 
 - Nhãn lỗi đến từ **điều kiện vật lý được chủ động thiết lập/áp đặt** và ghi trong protocol/metadata: motor, fixture/setup, fault type, severity nếu được xác nhận, RPM/load, time, người lập và version.

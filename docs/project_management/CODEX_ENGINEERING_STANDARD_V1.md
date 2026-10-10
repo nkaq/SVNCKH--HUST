@@ -24,7 +24,20 @@
 | Timestamp | Clock source, rollover, monotonic/sample index, đồng bộ các modality và ý nghĩa microsecond |
 | Transport | CRC/checksum khi protocol yêu cầu; packet version, framing, lost/corrupt frames, recovery |
 | Driver | ADXL345 cấu hình ODR/range/bus được log; I2C/SPI timeout, disconnect, status, retry có giới hạn |
-| State machine | INIT/SELF_CHECK/READY/STABILIZE/RECORD/STOP/QC/ERROR có transitions và failure behavior rõ |
+| State machine | Đối chiếu các trạng thái, transitions, timeout, recovery và failure behavior với **firmware contract / system architecture version đã được phê duyệt**. Không áp đặt một chuỗi trạng thái cố định cho mọi phiên bản. |
+**Lưu ý về State Machine:**
+
+Chuỗi `INIT → SELF_CHECK → READY → STABILIZE → RECORD → STOP → QC/ERROR` chỉ là ví dụ từ nhiệm vụ Week 3 / Acquisition Firmware v2.
+
+Đây không phải tiêu chuẩn bắt buộc cho mọi phiên bản firmware.
+
+Khi review, Codex phải:
+- Đọc firmware contract và architecture version đang có hiệu lực.
+- Kiểm tra transitions, timeout, recovery và xử lý lỗi theo contract đó.
+- Phát hiện trạng thái không thể truy cập, deadlock hoặc chuyển trạng thái không hợp lệ.
+- Không yêu cầu khôi phục state cũ nếu phiên bản kiến trúc mới đã được người phụ trách phê duyệt.
+
+Nếu contract thiếu hoặc mâu thuẫn, yêu cầu EE2/ME1 xác nhận thay vì tự đặt lại state machine.
 | Resources | Không giả định RAM, stack, heap, flash, time; nếu claim đã đo phải dẫn đo thật trên target build |
 | Tests | Unit/host-side logic khi có thể; build trên board configuration đúng; bench/stress test chỉ PASS với log thật |
 
@@ -64,4 +77,9 @@ Mỗi finding: `file:dòng` → bằng chứng → vì sao sai → hậu quả �
 - Test phù hợp đã chạy với output có thật (hoặc báo `NOT RUN`, lý do và tác động).
 - Diff không có secret, data raw/private, code demo blocking hay file không liên quan.
 - Nếu phần cứng/GT/dataset/architecture/safety/research claim bị ảnh hưởng: Human Gate trước khi merge.
-- Người làm tự review, người độc lập review, Codex findings được xử lý; PR về `dev`.
+- Người làm đã tự review, có reviewer độc lập và PR hướng vào `dev`.
+- Nếu Codex hoạt động: phiên review phải hoàn tất và findings có căn cứ phải được xử lý trước khi merge.
+- Nếu Codex không khả dụng: PR phải ghi rõ lý do, bằng chứng và kết quả human review độc lập thay thế.
+- Human Gate bắt buộc vẫn phải hoàn tất dù Codex có hoạt động hay không.
+- Không coi Codex Review Completed hoặc repo-quality PASS là bằng chứng tự động về tính đúng đắn khoa học hay an toàn phần cứng.
+
