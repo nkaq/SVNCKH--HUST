@@ -21,6 +21,12 @@ Read weekly task in `docs/plans/weekXX/README.md` on `dev`
 
 ME1 assigns tasks in `dev/docs/plans/weekXX/README.md` with task ID, owner, deliverables, acceptance criteria, deadline and evidence. **GitHub Issues are optional** tracking records, not mandatory for a weekly assignment. When there is no Issue, the PR must state the weekly README path and task ID; do not fabricate an Issue number.
 
+## Team changes and notifications
+
+When an approved change affects another member's task, a shared interface, the engineering workflow, or a scientific/hardware Human Gate, follow [`NCKH_TEAM_CHANGE_UPDATE_WORKFLOW_V1.md`](docs/project_management/NCKH_TEAM_CHANGE_UPDATE_WORKFLOW_V1.md). ME1 or the delegated owner posts a traceable `[PROJECT UPDATE]` using [`PROJECT_UPDATE_TEMPLATE.md`](docs/project_management/PROJECT_UPDATE_TEMPLATE.md), links the merged PR and the updated authoritative document on `dev`, tags affected members, and collects `READY/BLOCKED` acknowledgements. Merely merging or pulling a branch does **not** notify colleagues or prove they understood the change. `CHANGELOG.md` provides a summary, not approval authority.
+
+Before adopting a cross-team change, check its effective date, version, affected interfaces, and required Human Gates. If the update conflicts with an approved contract or Ground Truth/dataset policy, stop and escalate to ME1 and the relevant owner; do not silently reinterpret a protocol.
+
 ## Before starting
 
 ```bash
