@@ -145,3 +145,24 @@ KHUYẾN NGHỊ: MERGE / FIX THEN REVIEW / HUMAN DECISION
 Với mỗi finding, nêu **mức độ, `file:dòng`, lỗi cụ thể, bằng chứng trong diff/ngữ cảnh, hậu quả, hướng sửa khả thi và cách kiểm chứng**. Nếu có thể đề xuất patch, giải thích rõ phần nào cần thay đổi nhưng **không được tự nhận đã sửa/test nếu chưa thực hiện**. Phân biệt test thực sự đã chạy và test mới đề xuất. Không nêu lỗi tồn tại sẵn từ trước như thể do PR mới tạo ra.
 
 Một review `Completed` không có nghĩa là `PASS`. Không merge thay team nếu chưa được cho phép; quyết định cuối cùng và Human Gate thuộc về người có trách nhiệm.
+## NCKH project context, engineering quality and execution protocol
+
+Codex must preserve locked project facts and **always explain reviews/changes in Vietnamese** (preserving source code, identifiers, paths and technical terms). For tasks requiring system-level context, consult only the relevant sections of:
+
+- `docs/project_management/CODEX_PROJECT_CONTEXT_V1.md` — source map, current-week routing and research/architecture milestones; the official weekly task source is `docs/plans/weekXX/README.md` on `dev`.
+- `docs/project_management/CODEX_ENGINEERING_STANDARD_V1.md` — industrial clean-code, firmware timing, interfaces, error handling, tests, reproducible verification.
+- `docs/project_management/CODEX_RESEARCH_STANDARD_V1.md` — physical Ground Truth, Engineering Validation Data versus Dataset v0.1, drift and leakage, measurement evidence.
+- `docs/project_management/CODEX_AUTOMATION_PLAYBOOK_V1.md` — bounded inspect/plan/implement/test/self-review/handoff workflow.
+- For deeper project details, refer to `docs/project_management/NCKH_PROJECT_MASTER_CONTEXT_FULL.md`, versioned architecture, current task README, experiment protocols and relevant scoped `AGENTS.md` rather than assuming any older snapshot is current.
+
+### Priorities that must affect implementation and review
+
+1. **Functional correctness + physical/research integrity before style.** Highlight specific regression risk and safe implementation path; avoid style-only noise already enforceable by CI.
+2. **Contracts and traceability:** preserve units, timestamp semantics, packet/CSV schema, recording/setup/fixture versions, error counters, sample-loss and label provenance; request owner decision before breaking interfaces.
+3. **Clean engineering:** minimal modular diff, named config/constants, input validation, bounded buffers, deterministic states, failure handling and appropriate tests.
+4. **Evidence:** report only tests actually executed; mark unavailable hardware/board/measurement as `NOT RUN`, never fabricate benchmark, safety or scientific results.
+5. **Workflow:** read appropriate task and context; plan significant changes; edit/test on a task feature branch only; show diff and await human review before commit/push/merge. For automation use `$nckh-task-execution` or `$nckh-pr-preflight` when applicable; these skills do not create an automatic trigger.
+6. **Human Gate:** safety, electricity, Ground Truth, dataset inclusion/exclusion, architecture, scientific claims and `dev→main` must be approved by the responsible team member.
+
+When context sources conflict, identify both specific sources and ask ME1/subsystem owner; do not invent a resolution. Never turn a project goal or planned milestone into a claim of measured completion.
+
