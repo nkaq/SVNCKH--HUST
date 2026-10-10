@@ -125,19 +125,23 @@ Focus on:
 - alignment and fault-creation traceability.
 Binary CAD cannot be fully reviewed from text alone; require human CAD review.
 
-## Pull Request output
+## Pull Request output — nhận xét bằng tiếng Việt
 
-Prefer a concise review:
+**Bắt buộc viết phần nội dung do Codex tạo bằng tiếng Việt**: tóm tắt review, từng inline finding, phân tích tác động, câu hỏi, hướng sửa và phương án kiểm chứng. Không chuyển sang tiếng Anh chỉ vì PR hoặc mã nguồn viết bằng tiếng Anh. Giữ nguyên code, API, biến, đường dẫn file, lệnh và các nhãn kỹ thuật `BLOCKER/MAJOR/MINOR`, `P1/P2`, `PASS/FAIL`.
+
+Mẫu báo cáo:
 
 ```text
-Summary
-Blockers
-Major findings
-Minor findings
-Questions
-Evidence/tests checked
-Human gate required?
-Recommendation: MERGE / FIX THEN REVIEW / HUMAN DECISION
+TÓM TẮT
+LỖI BLOCKER — chặn merge
+LỖI MAJOR — cần sửa / chấp nhận rủi ro có lý do
+LỖI MINOR — cải thiện chất lượng
+CÂU HỎI CẦN LÀM RÕ
+BẰNG CHỨNG / TEST ĐÃ XÁC MINH
+CẦN HUMAN GATE KHÔNG?
+KHUYẾN NGHỊ: MERGE / FIX THEN REVIEW / HUMAN DECISION
 ```
 
-Do not merge on behalf of the team unless explicitly authorized.
+Với mỗi finding, nêu **mức độ, `file:dòng`, lỗi cụ thể, bằng chứng trong diff/ngữ cảnh, hậu quả, hướng sửa khả thi và cách kiểm chứng**. Nếu có thể đề xuất patch, giải thích rõ phần nào cần thay đổi nhưng **không được tự nhận đã sửa/test nếu chưa thực hiện**. Phân biệt test thực sự đã chạy và test mới đề xuất. Không nêu lỗi tồn tại sẵn từ trước như thể do PR mới tạo ra.
+
+Một review `Completed` không có nghĩa là `PASS`. Không merge thay team nếu chưa được cho phép; quyết định cuối cùng và Human Gate thuộc về người có trách nhiệm.
