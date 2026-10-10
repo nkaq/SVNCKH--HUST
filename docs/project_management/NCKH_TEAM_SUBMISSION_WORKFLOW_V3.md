@@ -17,7 +17,7 @@ ME1 đăng kế hoạch tuần: docs/plans/weekXX/README.md (trên dev)
                       ↓
 Thành viên mở README tuần, đọc task của mình và tiêu chí PASS
                       ↓
-git switch dev → git pull origin dev → tạo feature branch
+git switch dev → git pull --ff-only origin dev → tạo feature branch
                       ↓
 Làm artifact trong folder subsystem đúng vai trò
                       ↓
@@ -97,9 +97,11 @@ Mở **đúng thư mục repository đã clone** (thư mục chứa `.git`, `REA
 ```powershell
 git status
 git switch dev
-git pull origin dev
+git pull --ff-only origin dev
 git status
 ```
+
+Nếu `git pull --ff-only origin dev` không thể fast-forward, **dừng lại**: local `dev` có thể chứa commit ngoài ý muốn. Không đổi sang pull-by-merge, `reset --hard`, `rebase` hoặc force push; hỏi ME1 kiểm tra `git log --oneline --left-right dev...origin/dev` rồi mới tiếp tục.
 
 Nếu có file **modified/untracked không liên quan** (ví dụ `.github/codex/` hoặc `.github/workflows/codex-agent.yml` đang thử nghiệm), **không xóa/reset/`git add .` một cách mù quáng**. Chỉ tiếp tục khi đã xác định rõ các file này và không để chúng lọt vào PR task.
 
@@ -140,8 +142,8 @@ git diff
 **Yêu cầu kỹ thuật đặc thù NCKH:**
 
 - Không đổi mặc định ESP32-S3/ADXL345 và bộ sensor của hệ thống khi chưa có phê duyệt.
-- **Ground Truth** bắt nguồn từ tình trạng vật lý áp đặt/quan sát có kiểm soát, không từ FFT hoặc dự đoán model.
-- **Engineering Validation Data ≠ Dataset v0.1** khi fixture chưa đạt điều kiện nghiệm thu/version freeze.
+- **Ground Truth** chỉ đến từ **điều kiện vật lý do nhóm chủ động thiết lập/áp đặt theo protocol**, có metadata chứng minh. Không suy nhãn từ quan sát tín hiệu, FFT, đặc trưng hay output mô hình; nếu không xác nhận được điều kiện áp đặt thì không tự gán nhãn.
+- **Engineering Validation Data luôn tách biệt với Dataset v0.1**, bất kể fixture đã nghiệm thu hay chưa. Không đổi nhãn/tái phân loại recording validation thành Dataset v0.1 sau acceptance/freeze. Chỉ các recording **mới** thu sau Fixture Acceptance Test PASS và setup/fixture version freeze, có đủ physical Ground Truth, metadata, QC và được Human Gate chấp nhận mới được xem xét đưa vào Dataset v0.1.
 - Không bịa kết quả đo, số mẫu, accuracy, latency, current, nhiệt độ hay benchmark.
 - Với IT2, chia train/val/test theo **recording/setup** thích hợp; không để cửa sổ từ cùng recording rò rỉ qua các tập.
 - Những quyết định về cơ khí an toàn, cấp nguồn/điện áp, Ground Truth, tập dữ liệu, kiến trúc hoặc scientific claim cần **Human Gate**.
@@ -154,7 +156,8 @@ Chỉ add **đúng file của task** (không dùng `git add .` khi workspace cò
 
 ```powershell
 git status
-git add firmware/esp32s3/
+# Ví dụ: thay tên file placeholder bằng đường dẫn file thật của task
+git add -- "firmware/esp32s3/<ten-file-1>.cpp" "firmware/esp32s3/<ten-file-2>.h"
 git diff --cached --stat
 git diff --cached
 git commit -m "feat(firmware): implement W03-EE2-01 acquisition v2"
@@ -166,6 +169,8 @@ Nếu bài khác, đổi path, commit message và branch cho phù hợp. Nếu `
 ```powershell
 git restore --staged path/to/unrelated-file
 ```
+
+Phải thay `<ten-file-1>.cpp` và `<ten-file-2>.h` bằng **file thực tế đang có**, không chạy lệnh nguyên mẫu. Kiểm `git diff --cached --name-only` và `git diff --cached` trước khi commit, không stage nguyên subsystem hoặc dùng `git add .` khi còn file task khác.
 
 **Push chỉ tải branch lên GitHub, chưa phải nộp bài hoàn tất.** Phải tạo Pull Request.
 
@@ -201,6 +206,8 @@ Dependencies / changed interfaces: ghi rõ hoặc None
 Human Gate: Needed / Not needed + lý do
 ```
 
+Nếu không có Issue: ghi `Issue: Không có — task theo docs/plans/weekXX/README.md` trong PR template. Nếu có Issue, ghi số Issue thật; chỉ dùng `Closes #...` nếu PR thực sự giải quyết Issue đó. `CONTRIBUTING.md` và template thống nhất GitHub Issue là tùy chọn.
+
 **PR chỉ được merge khi bài đáp ứng acceptance criteria của kế hoạch tuần**, không phải chỉ vì nút merge đang xanh.
 
 ---
@@ -212,11 +219,15 @@ Các bước kiểm tra áp dụng như sau:
 | Thành phần | Công dụng | Trạng thái áp dụng |
 |---|---|---|
 | `repo-quality` | GitHub Actions kiểm chất lượng repo | Check CI đã được triển khai |
-| `CODEOWNERS` | Tự yêu cầu đúng người review theo subsystem | Đã hoạt động, ví dụ firmware → EE2 |
-| Codex Code Review | Comment bug/rủi ro, viện dẫn AGENTS khi phù hợp | Có thể yêu cầu bằng `@codex review`; automatic All PRs đang chờ xác nhận cấu hình |
+| `CODEOWNERS` | Xác định người sở hữu subsystem và hỗ trợ yêu cầu review | Không tự request tác giả làm reviewer của PR mình; cần reviewer độc lập |
+| Codex Code Review | Tự động gợi ý lỗi/bản sửa theo `AGENTS.md` khi được kích hoạt | Đã tự chạy cho PR của ME1; chưa xác minh toàn bộ PR từ các collaborator |
 | Human review / Gate | Chốt vấn đề khoa học, cơ khí, điện, GT, dữ liệu, thay đổi kiến trúc | Không được thay bằng AI |
 
-**Không coi Codex là required status check `Codex Agent Checked`** khi chưa triển khai được một GitHub Action riêng. Không coi GitHub Copilot Review là Codex Review.
+**Reviewer độc lập:** Nếu tác giả chính là CODEOWNER duy nhất của subsystem (ví dụ EE2 nộp PR vào `firmware/esp32s3/`), GitHub không thể dùng tác giả làm reviewer của chính mình. Hãy request collaborator độc lập, thường là ME1 hoặc người phụ trách giao diện liên quan. Nếu sau này bật **Require review from Code Owners** mà tác giả là code owner duy nhất của đường dẫn, việc chỉ mời reviewer khác **không đáp ứng** yêu cầu code-owner approval: cần thêm một code owner dự phòng đủ quyền hoặc cấu hình lại rule trước khi enforce. Không tự duyệt PR của mình.
+
+**Quy định nhóm trước merge:** Chờ Codex review hiện `Completed`, xem các finding (P1/P2) và xử lý trước khi merge. Nếu review không chạy do quyền/hạn mức, ghi lý do và chỉ merge sau human review có bằng chứng. Đây là quy tắc vận hành, **không phải required status check**; không coi Codex là `Codex Agent Checked` khi GitHub chưa có check đó. GitHub Copilot Review không phải Codex Review.
+
+Codex được yêu cầu bình luận, giải thích tác động và đưa hướng sửa **bằng tiếng Việt** theo `AGENTS.md`; giữ nguyên code, tên file và ký hiệu kỹ thuật. Nếu bot trả tiếng Anh, có thể hỏi lại bằng tiếng Việt nhưng vẫn phải xử lý lỗi trước khi resolve.
 
 Nếu reviewer báo lỗi:
 
@@ -226,7 +237,8 @@ Nếu reviewer báo lỗi:
 4. Commit + push:
 
 ```powershell
-git add firmware/esp32s3/
+# Ví dụ: thay tên file placeholder bằng đường dẫn file thật của task
+git add -- "firmware/esp32s3/<ten-file-1>.cpp" "firmware/esp32s3/<ten-file-2>.h"
 git commit -m "fix(firmware): address acquisition review feedback"
 git push
 ```
@@ -240,7 +252,7 @@ git push
 
 ## 9. Chốt bài, squash merge và đồng bộ máy
 
-Ai merge: người có quyền và được ME1/nhóm phân công, theo ruleset; phải đạt acceptance criteria, kiểm tra feedback và Human Gate nếu áp dụng.
+Ai merge: người có quyền và được ME1/nhóm phân công, theo ruleset; phải đạt acceptance criteria, chờ review tự động hoàn tất và xử lý findings (hoặc human review thay thế được ghi rõ khi Codex không chạy), kiểm reviewer độc lập và Human Gate nếu áp dụng.
 
 Với PR `feature → dev`, dùng **Squash and merge** theo quy định của repo. Không dùng PR `feature → main`.
 
@@ -248,7 +260,7 @@ Sau khi merge, thành viên chạy:
 
 ```powershell
 git switch dev
-git pull origin dev
+git pull --ff-only origin dev
 git status
 ```
 
@@ -291,7 +303,7 @@ Nếu lệnh Git trả lỗi không rõ, **dừng lại, chụp terminal và h�
 - [ ] Đã xem `git status`, `git diff`, `git diff --cached`
 - [ ] Đã commit + push + tạo PR **base = dev**
 - [ ] PR ghi task source, task ID, deliverables, test, dependency
-- [ ] Đã kiểm `repo-quality`, CODEOWNERS, Codex review khi có
+- [ ] Đã kiểm `repo-quality`; có reviewer độc lập; Codex `Completed` và findings được xử lý, hoặc ghi rõ review thay thế
 - [ ] Đã xử lý findings và Human Gate nếu có
 - [ ] Người có trách nhiệm chấp nhận bài trước khi Squash merge
 - [ ] Sau merge đã đồng bộ local `dev`
@@ -304,7 +316,7 @@ Nếu lệnh Git trả lỗi không rõ, **dừng lại, chụp terminal và h�
 # 1) Đồng bộ
 git status
 git switch dev
-git pull origin dev
+git pull --ff-only origin dev
 
 # 2) Nhận task trong docs/plans/weekXX/README.md
 # 3) Tạo branch
@@ -315,7 +327,8 @@ git status
 git diff
 
 # 5) Chỉ stage file thuộc task
-git add firmware/esp32s3/
+# Ví dụ: thay tên file placeholder bằng đường dẫn file thật của task
+git add -- "firmware/esp32s3/<ten-file-1>.cpp" "firmware/esp32s3/<ten-file-2>.h"
 git diff --cached
 
 # 6) Commit + push
@@ -326,7 +339,7 @@ git push -u origin feature/ee2-w03-acquisition-v2
 # 8) Kiểm CI + review; sửa và push bổ sung nếu được yêu cầu
 # 9) Sau khi merge
 git switch dev
-git pull origin dev
+git pull --ff-only origin dev
 ```
 
 **Lưu ý cuối:** Người nhận bài cần đọc kỹ kế hoạch tuần gốc. README tuần là yêu cầu công việc; PR + files + evidence là bài nộp; `dev` là nơi tích hợp; `main` chỉ được cập nhật qua quy trình chốt milestone.
