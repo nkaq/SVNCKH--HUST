@@ -1,15 +1,17 @@
 # NCKH — CẨM NANG CODE, CODEX SKILLS & TWO-STAGE AI CODE REVIEW
 
-**Phiên bản:** V1.0 — 12/10/2026  
+**Phiên bản:** V1.1 (bản sửa sau Codex Review PR #19) — 12/10/2026  
 **Dự án:** *Adaptive Multimodal TinyML for Drift-Robust Predictive Maintenance on Resource-Constrained Edge Microcontrollers*  
 **Repository chính:** <https://github.com/nkaq/SVNCKH--HUST>  
 **Đối tượng:** ME1, MS2, EE2, ET1, IT2; ưu tiên người trực tiếp viết code (EE2, IT2, MS2 và các phần code liên quan ET1/ME1).  
 **Môi trường ví dụ:** Windows + VS Code + PowerShell + Git + Codex Extension; GitHub Codex Code Review tích hợp ChatGPT, không thiết lập OpenAI API key riêng.  
-**Tính chất:** Cẩm nang vận hành bổ sung. **Không phải** lệnh thay thế `AGENTS.md`, chính sách dữ liệu, task README hay quyền phê duyệt.
+**Tính chất:** Cẩm nang vận hành bổ sung ở trạng thái **PROPOSED / CHỜ PHÊ DUYỆT VÀ CÔNG BỐ**. **Không phải** lệnh thay thế `AGENTS.md`, chính sách dữ liệu, task README hay quyền phê duyệt.
 
 > **Đọc trước:** Đây là hướng dẫn *cách sử dụng* các Skills và quy trình hai vòng review. Việc tạo file Markdown này **không tự cài Skill mới**, không bật GitHub ruleset, không bổ sung unit test CI và không làm Codex tự chạy khi `git push`. Phần nào chưa được cấu hình phải được kiểm tra trước khi dùng.
 >
 > **Nguyên tắc không thương lượng:** Thành viên viết/duyệt code; Codex được phép phân tích, sửa file theo phạm vi đã duyệt và chạy test; **người thật tự `git add`, `git commit`, `git push`, mở PR và quyết định merge**. AI không phê duyệt thay Human Gate.
+>
+> **Trạng thái triển khai V1.1:** Đây là tài liệu *đề xuất*. PR #19, bản ghi Project Update mức B và dòng `CHANGELOG.md` chỉ cung cấp nguồn truy vết; **không** đồng nghĩa ME1 đã phê duyệt, các thành viên đã ACK hoặc workflow đã `ACTIVE`. Chỉ được áp dụng bắt buộc toàn nhóm sau khi PR được review/merge, ME1 cấp Update ID, công bố ngày/điều kiện hiệu lực và thu đủ xác nhận `READY/BLOCKED` phù hợp. Trước đó dùng chuẩn hiện hành trong `AGENTS.md` và `CODEX_REVIEW_WORKFLOW.md`.
 
 ---
 
@@ -40,7 +42,7 @@
 ### 1.1. Quy trình chính: thành viên **code tay trước**, AI review sau
 
 ```text
-ME1 giao Task ID + acceptance criteria trong docs/plans/weekXX/README.md (dev)
+Nguồn task hợp lệ: README tuần trên dev / PR finding / hạ tầng được duyệt
     |
     v
 Thành viên sync dev sạch -> tạo feature branch riêng
@@ -147,7 +149,7 @@ Trước khi giao Codex việc quan trọng, bắt buộc đối chiếu nguồn
 |---|---|
 | `AGENTS.md` | Chính sách toàn repository; review tiếng Việt; luật locked hardware, evidence, human gate |
 | Scoped `AGENTS.md` như `ml/AGENTS.md`, `firmware/AGENTS.md`, `experiments/AGENTS.md`, `hardware/.../AGENTS.md` | Quy tắc chuyên môn theo vùng file, nếu có |
-| `docs/plans/weekXX/README.md` | **Nguồn task chính thức** theo tuần; Task ID, owner, deliverable, acceptance/evidence |
+| `docs/plans/weekXX/README.md` | **Nguồn task chính thức của task tuần**; Task ID, owner, deliverable, acceptance/evidence |
 | `docs/project_management/CODEX_PROJECT_CONTEXT_V1.md` và Project Master Context bản hiện hành | Bối cảnh, phiên bản, nguồn đúng |
 | `docs/project_management/CODEX_ENGINEERING_STANDARD_V1.md` | Clean Code, interface, test, timing, embedded engineering |
 | `docs/project_management/CODEX_RESEARCH_STANDARD_V1.md` | Data provenance, Ground Truth, dataset, reproducibility |
@@ -157,6 +159,19 @@ Trước khi giao Codex việc quan trọng, bắt buộc đối chiếu nguồn
 | `.github/PULL_REQUEST_TEMPLATE.md` | Form nộp Pull Request thực tế |
 | `CONTRIBUTING.md` | Quy trình Git/PR/merge, format commit, review policy |
 | `docs/project_management/NCKH_TEAM_CHANGE_UPDATE_WORKFLOW_V1.md` | Thông báo và xác nhận thay đổi liên nhóm, nếu áp dụng |
+
+### 2.1. Nguồn task hợp lệ theo loại PR (không bịa Task ID)
+
+Theo `.github/PULL_REQUEST_TEMPLATE.md` hiện hành:
+
+| Loại PR | Nguồn bắt buộc ghi trong PR | Cách ghi Task ID |
+|---|---|---|
+| **Task tuần** | `docs/plans/weekXX/README.md` trên `dev`, tuần đúng hiệu lực | Dùng Task ID do ME1 giao |
+| **Sửa finding review** | PR gốc và URL finding/commit được xác nhận | Dùng PR/finding ref; ghi `NOT APPLICABLE — review finding` nếu không có Task ID tuần |
+| **Hạ tầng / tài liệu** | Quyết định hoặc yêu cầu hạ tầng được ME1 phê duyệt, PR/thảo luận/tài liệu nguồn có thể truy vết | Ghi `NOT APPLICABLE — infrastructure/docs` nếu không có Task ID tuần |
+| **Milestone / release** | Quyết định integration/milestone, PR `dev → main`, approval và evidence | Ghi release/version hoặc task milestone đã được cấp; không chế ID |
+
+Thiếu *nguồn nhiệm vụ được phê duyệt* hoặc acceptance criteria cốt lõi thì phải hỏi owner; nhưng **không** ép mọi PR có `WXX-ROLE-NN`. Một GitHub Issue không bắt buộc; nếu không có thì ghi `Issue: None`. Với thay đổi quy trình mức B/C, bổ sung Project Update và Human Gate theo chính sách trước khi áp dụng.
 
 **Khi mâu thuẫn:** dừng, trích rõ hai nguồn và hỏi ME1/domain owner. Một prompt của người dùng hoặc một Skill bên thứ ba **không được phép âm thầm ghi đè** repository rules, kế hoạch tuần/contract đã phê duyệt, hoặc Human Gate. Nếu bản kế hoạch thay đổi, phải căn cứ `[PROJECT UPDATE]` và phiên bản có hiệu lực.
 
@@ -333,7 +348,7 @@ Get-Item "$HOME\.agents\skills" -ErrorAction SilentlyContinue |
 }
 
 # Nếu đã có Node/npm:
-npx.cmd --yes skills@latest list -g -a codex
+npx.cmd --yes skills@1.7.0 list -g -a codex
 ```
 
 `True` chứng minh file tồn tại, **chưa tự chứng minh Codex sẽ chọn Skill trong mọi chat**. Reload VS Code (`Ctrl+Shift+P` -> `Developer: Reload Window`), mở Codex chat mới, thử yêu cầu liệt kê Skill file thực sự đọc. Không dùng `$tdd` thủ công trong bài thử tự kích hoạt nếu đang kiểm chứng cơ chế chọn tự động.
@@ -360,20 +375,48 @@ New-Item -ItemType Junction -Path "$HOME\.agents\skills" -Target $skillsDir
 
 **Không đặt thư mục Skills user-level bên trong `SVNCKH--HUST/` hoặc stage lên Git.** Máy chủ dự án đã có Junction từ `C:\Users\Dell\.agents\skills` sang `D:\SVNCKH--HUST_v3_Codex_Ready\AI_Agent_Skills`; **không tạo Junction trùng**.
 
-**Bước B — liệt kê trước khi cài:**
+**Bước B — khóa nguồn cài (không dùng `latest`):**
+
+Đề xuất baseline **cần ME1 thẩm định trước rollout**: `skills` CLI phiên bản npm `1.7.0` (phiên bản có trên npm tại ngày biên soạn), repository `mattpocock/skills` **commit bất biến** `4588b32ecab9ecc9fc8cc6b6c5e7d675b6004b0d`. Đây là mốc được xác minh tồn tại trên GitHub, **chưa phải** bằng chứng đã audit từng file trên máy của cả 5 thành viên, và có thể khác ba Skills từng cài bằng `latest` trước đây. Không tuyên bố các bản cài cũ đồng nhất. Không tự lấy thêm bản mới khi chưa có PR nâng cấp và ME1 duyệt.
 
 ```powershell
-npx.cmd --yes skills@latest add mattpocock/skills --list
+# Chỉ áp dụng cho máy chưa cài, sau khi ME1 duyệt baseline.
+$approvedCommit = '4588b32ecab9ecc9fc8cc6b6c5e7d675b6004b0d'
+$sourceRoot = 'D:\NCKH\Approved_Skill_Sources'     # Đổi sang ổ có quyền ghi nếu cần
+$verifiedCheckout = Join-Path $sourceRoot 'mattpocock-skills-4588b32'
+New-Item -ItemType Directory -Force -Path $sourceRoot | Out-Null
+if (Test-Path $verifiedCheckout) {
+    throw 'Thư mục nguồn đã tồn tại; kiểm tra trước, không tự ghi đè.'
+}
+git clone https://github.com/mattpocock/skills.git $verifiedCheckout
+if ($LASTEXITCODE -ne 0) { throw 'git clone thất bại' }
+git -C $verifiedCheckout checkout --detach $approvedCommit
+if ($LASTEXITCODE -ne 0) { throw 'git checkout thất bại' }
+$actualCommit = (git -C $verifiedCheckout rev-parse HEAD).Trim()
+if ($actualCommit -ne $approvedCommit) { throw 'Sai commit nguồn, DỪNG.' }
+npx.cmd --yes skills@1.7.0 add $verifiedCheckout --list
 ```
 
-**Bước C — cài đúng ba Skills đã chọn, không cài cả bộ 38 Skills:**
+**Bước C — sau khi kiểm duyệt nội dung Skills ở checkout đã khóa, cài đúng ba Skills cho Codex:**
 
 ```powershell
-npx.cmd --yes skills@latest add mattpocock/skills -g -a codex --copy -s tdd -s diagnosing-bugs -s code-review
-npx.cmd --yes skills@latest list -g -a codex
+# Không chạy nếu máy đã có bản Skills khác mà chưa được ME1 duyệt thay thế.
+npx.cmd --yes skills@1.7.0 add $verifiedCheckout -g -a codex --copy -s tdd -s diagnosing-bugs -s code-review
+npx.cmd --yes skills@1.7.0 list -g -a codex
 ```
 
-**Bước D — verify** như §6.3, Reload Window, thử prompt **P01**. CLI/flags phụ thuộc phiên bản `skills@latest`; nếu thay đổi, xem `--help`, không ép chạy lệnh phá thư mục.
+**Bước D — kiểm chứng bản cài và lưu dấu vết:**
+
+```powershell
+foreach ($skill in @('tdd', 'diagnosing-bugs', 'code-review')) {
+    $skillFile = Join-Path "$HOME\.agents\skills" "$skill\SKILL.md"
+    if (!(Test-Path $skillFile)) { throw "Thiếu $skillFile" }
+    Get-FileHash -Algorithm SHA256 -LiteralPath $skillFile |
+        Select-Object Path, Hash
+}
+```
+
+ME1 lưu `CLI version`, `source commit`, **hash thực tế từng `SKILL.md` + supporting files** và kết quả test Codex đọc Skill trên máy pilot; chỉ so khớp với baseline đã duyệt sau khi có bảng hash tham chiếu thật. Hash hiển thị không tự chứng minh an toàn hay nội dung đúng. Sau đó Reload Window, thử P01. Nếu CLI không hỗ trợ local source/flag ở phiên bản đã ghim, dừng và lập PR cập nhật hướng dẫn, **không tùy tiện trở lại `@latest`**.
 
 > **Không cài vội** `implement` của Matt Pocock vì trong bản đã xem Skill này có bước commit; điều đó mâu thuẫn quy trình team. Cũng không chạy `setup-matt-pocock-skills` khi chưa duyệt vì có thể thay đổi instruction/config của repository.
 
@@ -409,7 +452,7 @@ git status --short
 ```
 
 - Nếu `git status --short` **không rỗng**, xem file nào đang sửa; **không tự `switch`/`pull` để mất thay đổi**.
-- Task ID/Goal/Acceptance/Evidence phải lấy từ `docs/plans/weekXX/README.md` bản đang có hiệu lực trên `dev`, không tự bịa số Issue.
+- Với **task tuần**, Task ID/Goal/Acceptance/Evidence lấy từ `docs/plans/weekXX/README.md` có hiệu lực trên `dev`. Với PR finding hoặc hạ tầng/tài liệu, dùng nguồn PR/ME1-approved task tương ứng theo §2.1; không tự bịa số Issue hay ID.
 - Kiểm tra đang làm đúng subsystem, xác nhận các dependency với owner trước khi sửa contract dùng chung.
 - Không dùng `main` như nhánh phát triển; không sửa trực tiếp `dev`.
 
@@ -671,7 +714,7 @@ git push
 
 ```markdown
 Task source: docs/plans/weekXX/README.md
-Task ID: <ID do ME1 giao>
+Task ID / source: <WXX-ROLE-NN + README tuần | PR finding URL | ME1-approved infra task URL>
 Owner: IT2
 Base: dev
 Scope: ml/preprocessing/, ml/features/
@@ -781,7 +824,7 @@ jobs:
 
 Yêu cầu vận hành nội bộ trước merge:
 
-- PR base đúng `dev`, Task ID và acceptance khớp.
+- PR base đúng `dev`, nguồn task/acceptance khớp **loại PR** theo §2.1; Task ID tuần chỉ bắt buộc với task tuần.
 - Tests/evidence **thực sự** đủ cho phần thay đổi; `repo-quality` PASS nếu workflow có áp dụng.
 - Codex review đã được xem ở commit cập nhật hoặc có fallback độc lập khi không khả dụng.
 - Findings có căn cứ đã sửa hoặc được owner chấp nhận có lý do; không bỏ qua blocker.
@@ -889,7 +932,7 @@ Trả lời tiếng Việt, không tự tuyên bố Skill điều phối nckh-co
 ### P02 — Tiếp nhận task và lập kế hoạch trước khi sửa (READ-ONLY)
 
 ```text
-Tôi là <ME1/MS2/EE2/ET1/IT2>. Task chính thức: docs/plans/weekXX/README.md, ID <TASK_ID>.
+Tôi là <ME1/MS2/EE2/ET1/IT2>. Nguồn task hợp lệ: <README tuần + Task ID | PR finding URL | task hạ tầng được ME1 duyệt>.
 Yêu cầu: <GOAL>. Acceptance criteria: <ACCEPTANCE>. Phạm vi: <FOLDERS>.
 Đọc root/scoped AGENTS.md, task README và các contracts có liên quan.
 Phân tích code hiện có, đề xuất file cần sửa, interface cần giữ, regression risks,
@@ -1391,7 +1434,7 @@ Không thể tiên liệu **mọi** lỗi tương lai của firmware/ML/GitHub, 
 | S06 | `dev` có thay đổi chưa commit | Dừng; xác định ai sửa và file nào; không pull/switch cưỡng bức |
 | S07 | Tạo branch mới trùng tên cũ | Kiểm `git branch --list`, `git branch -r`; chọn tiếp tục branch đúng hoặc tên task mới |
 | S08 | Đang ở `main`/`dev` mà đã code tay | Dừng trước commit; kiểm diff; xin hướng dẫn chuyển an toàn sang feature branch |
-| S09 | Task không có Task ID/acceptance | Hỏi ME1; không tự suy diễn criteria từ mô tả chung |
+| S09 | Task thiếu nguồn/acceptance hoặc thiếu Task ID *khi là task tuần* | Hỏi owner/ME1; PR finding/hạ tầng dùng ref hợp lệ thay Task ID theo §2.1 |
 | S10 | Week plan cũ mâu thuẫn `[PROJECT UPDATE]` | Xác định version/effective date; dùng nguồn có hiệu lực, báo bất đồng |
 | S11 | File cần sửa không có trong repo | Kiểm nhánh, thư mục, owner; đừng tạo file giả chỉ để Codex có cái review |
 | S12 | Cần sửa thư mục không thuộc owner | Hỏi owner liên quan; xin task/PR scope và cập nhật interface nếu cần |
@@ -1492,7 +1535,7 @@ git diff --stat
 git diff --cached --stat
 ```
 
-**Không paste nội dung secret vào chat/issue.** Gửi screenshot terminal và mô tả việc vừa làm; không paste dữ liệu private hay credentials.
+**KHÔNG gửi screenshot terminal đầy đủ hoặc copy nguyên output trước khi rà soát và che bí mật.** `git remote -v` có thể in URL chứa user-info/PAT (ví dụ `https://USER:TOKEN@github.com/ORG/REPO.git`); ảnh cũng có thể chứa email, path riêng, nội dung dữ liệu hoặc token từ log khác. Tốt nhất gửi **chỉ các dòng text liên quan đã được redaction thủ công**, không gửi nguyên màn hình; thay toàn bộ user-info/credential bằng `<REDACTED>`, ví dụ `https://<REDACTED>@github.com/nkaq/SVNCKH--HUST.git`. Không copy giá trị token thật vào prompt, regex, file log hoặc phần ví dụ; không khẳng định Git tự che secrets. Nếu lỡ lộ credential: **dừng chia sẻ, revoke/rotate ngay** và báo owner. 
 
 ### 14.2. `fatal: not a git repository`
 
@@ -1697,8 +1740,8 @@ Không gọi `MEASURED PASS` cho một hạng mục có required repetition/owne
 ```markdown
 # NCKH Task Intake
 
-- Week / authoritative README: docs/plans/weekXX/README.md
-- Task ID: <ME1 assigned ID>
+- Task source: <README tuần trên dev | PR finding URL | task hạ tầng được ME1 duyệt | milestone decision ref>
+- Task ID: <chỉ task tuần; trường hợp khác NOT APPLICABLE + lý do>
 - Owner: <ME1 | MS2 | EE2 | ET1 | IT2>
 - Branch: feature/<member>-<task>
 - Current approved architecture/contract version: <...>
@@ -1781,7 +1824,7 @@ Không gọi `MEASURED PASS` cho một hạng mục có required repetition/owne
 
 ### 15.4. Checklist dành cho **người tự viết code** (trước khi giao Codex)
 
-- [ ] Đã đọc Task ID, Goal, Acceptance, Evidence từ README tuần **đang có hiệu lực** trên `dev`.
+- [ ] Đã đọc nguồn task đúng loại (§2.1), Goal/Acceptance/Evidence; task tuần phải có Task ID trong README trên `dev`.
 - [ ] Đã kiểm đúng repository `origin`, nhánh feature, working tree và owner.
 - [ ] Có notes/code tay hợp lý, không copy output AI vô hiểu biết.
 - [ ] Các assumptions/chưa rõ được ghi rõ, không tự thay contract.
@@ -1928,7 +1971,7 @@ Không bắt Codex chạy **mọi** Skill cho **mọi** prompt: routing phải l
 3. `NCKH_CODEX_AGENT_WORKFLOW_V3.md` — feature branch, inspect/plan/edit/test/review/human Git, prompt theo vai trò.
 4. `NCKH_MEMBER_WORKSPACE_FILETYPE_GUIDE_V3.md` — subsystem owner, file types, location, Git LFS/raw data.
 5. `NCKH_TEAM_VSCODE_GITHUB_OPEN_GUIDE_V3.md` — clone/open/sync Git và sự cố cơ bản.
-6. `pasted.txt` — Project Router, ưu tiên current task và `[PROJECT UPDATE]`.
+6. `docs/project_management/CODEX_PROJECT_CONTEXT_V1.md` và `docs/project_management/NCKH_TEAM_CHANGE_UPDATE_WORKFLOW_V1.md` (trên nhánh `dev`) — nguồn có version để truy vết task routing và `[PROJECT UPDATE]`; tài liệu không lưu trong Git chỉ là dữ liệu đầu vào biên soạn, **không** được viện dẫn như nguồn chuẩn.
 
 **Đã đối chiếu với nội dung thực có của repo GitHub trên `dev`:**
 
@@ -1955,7 +1998,7 @@ Không bắt Codex chạy **mọi** Skill cho **mọi** prompt: routing phải l
 
 ### 17.2. Quy trình bảo trì tài liệu này
 
-- **Owner nội dung:** ME1 phối hợp EE2/IT2/MS2/ET1 khi cập nhật nội dung chuyên môn.
+- **Owner nội dung:** ME1 phối hợp EE2/IT2/MS2/ET1 khi cập nhật nội dung chuyên môn. **Trạng thái V1.1:** PROPOSED; ghi nhận ở `docs/project_management/NCKH_TWO_STAGE_CODEX_WORKFLOW_PROJECT_UPDATE_PROPOSAL_V1.md` và mục Unreleased của `CHANGELOG.md`; chưa tự ACTIVE.
 - **Nơi khuyến nghị đưa vào repo (sau khi human duyệt):** `docs/project_management/NCKH_TWO_STAGE_CODEX_SKILLS_WORKFLOW_HANDBOOK_V1.md` qua **feature branch và PR**, không copy đè trực tiếp `dev`.
 - **Trước PR:** cross-check lại `AGENTS.md`, README task tuần hiện hành, CI/ruleset, review trigger, Skills thực cài, source logs và CODEOWNERS.
 - **Khi cập nhật:** tăng version, mô tả scope thay đổi, mốc hiệu lực, owner review; thông báo `[PROJECT UPDATE]` nếu thay đổi quy trình cả nhóm.
@@ -1965,6 +2008,7 @@ Không bắt Codex chạy **mọi** Skill cho **mọi** prompt: routing phải l
 | Version | Ngày | Thay đổi |
 |---|---|---|
 | V1.0 | 2026-10-12 | Cẩm nang hợp nhất local Codex Skills + GitHub Codex Review, lệnh Git/PowerShell, 41 mẫu prompt (P01–P40, trong đó P03 có 2 pha), 76 tình huống, bảng xử lý lỗi, checklist và ngưỡng Human Gate |
+| V1.1 (PROPOSED) | 2026-10-12 | Sửa 5 finding PR #19: thay tham chiếu ngoài repo, phân nguồn task theo PR template, Project Update mức B/CHANGELOG với trạng thái đề xuất, khóa CLI + Git commit của Skills và cảnh báo redact terminal credentials; đợi human review/ACK trước ACTIVE |
 
 ---
 
@@ -2059,4 +2103,4 @@ git diff --cached
 
 ---
 
-**KẾT LUẬN:** NCKH dùng **Human Code → Local Codex Skills Review/Fix/Test → Human Git → Official GitHub Codex Review + CI → Human Approval → Merge `dev`**. Mục tiêu là tìm lỗi sớm, giữ kỹ năng tự lập trình của thành viên, bảo vệ nghiên cứu và kiểm soát rủi ro — không “đánh dấu xanh” thay cho phép đo, kiểm thử hoặc quyết định của người phụ trách.
+**KẾT LUẬN (đề xuất, chưa ACTIVE):** NCKH dùng **Human Code → Local Codex Skills Review/Fix/Test → Human Git → Official GitHub Codex Review + CI → Human Approval → Merge `dev`**. Mục tiêu là tìm lỗi sớm, giữ kỹ năng tự lập trình của thành viên, bảo vệ nghiên cứu và kiểm soát rủi ro — không “đánh dấu xanh” thay cho phép đo, kiểm thử hoặc quyết định của người phụ trách.
