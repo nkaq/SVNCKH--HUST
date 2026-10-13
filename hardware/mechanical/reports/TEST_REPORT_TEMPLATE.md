@@ -4,7 +4,11 @@
 
 ## 1. Identity & traceability
 
-- Report ID / date and author: PENDING
+- Report ID / author: PENDING
+- **Report revision:** PENDING (revision controlled; do not infer from component Rev)
+- **Report date/time:** PENDING — ISO 8601 with UTC offset/timezone
+- **Lifecycle state:** DRAFT / UNDER_REVIEW / APPROVED / RELEASED / BLOCKED — **DRAFT by default**, not approved
+- **Evidence snapshot / Git commit SHA / approval reference for this report revision:** PENDING (record actual SHA and decision when available)
 - Component/assembly ID, revision, role: PENDING
 - Fixture version / setup version: PENDING
 - CAD TEST: Document ID, Version ID/URL and test evidence: PENDING / NOT_APPLICABLE
@@ -55,9 +59,22 @@
 
 ## 5. Physical inspection and evidence
 
-- Fixture/testbench serial, operator, date, measurement instrument/calibration: PENDING
-- RPM/load, safety enclosure, emergency stop and risk controls: PENDING
-- Vibration / alignment / repeatability evidence: NOT_RUN
+- Fixture/testbench serial, operator, test date/time (ISO 8601 + timezone), calibrated instrument ID and calibration reference: PENDING
+- Environmental context **for each run**: ambient temperature, humidity, site/setup/mounting conditions and sensor orientation: PENDING
+- Test plan / physical condition and motor operating state: PENDING
+- RPM range, controlled load and actual run parameters **for each run**: PENDING
+- Repeat count required by approved protocol and run order: PENDING
+- **Trial/run ID list:** PENDING (do not claim repeatability from a single run)
+- **Raw evidence paths per run** (recordings/photos/logs under approved storage/manifest; not private/raw dataset in Git): PENDING
+- Data acquisition firmware/measurement device version, sensor/calibration, fixture/setup version **per run**: PENDING
+- Safety enclosure, emergency stop and controls: PENDING
+- Vibration / alignment / mounting repeatability **per-run evidence and synthesis**: NOT_RUN
+
+| run_id | date/time + zone | motor condition/RPM/load | environment/mounting | instrumentation+calibration | raw evidence ref | QC/measurement status |
+|---|---|---|---|---|---|---|
+| PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | NOT_RUN |
+
+A measured `PASS` needs agreed repetition/acceptance thresholds, real raw provenance, per-run evidence and authorized reviewer; `BLOCKED/NOT_RUN` does not pass automatically.
 - Ground Truth source: **controlled physical condition only**; no FFT/ML inference as label.
 - No Engineering Validation recording may be renamed as official Dataset v0.1 after passing QC or fixture freeze.
 
@@ -71,7 +88,7 @@
 - Test author and qualified checker: PENDING
 - Human CAD/fabrication/safety approval reference: PENDING
 - Decision: **PENDING — NOT RELEASED**
-- Registry backlink: [CAD Registry](../onshape/cad_registry.md) (adjust relative path when report is copied under a version directory)
+- Registry backlink: [CAD Registry](../onshape/cad_registry.md) (for a real report at `reports/<COMPONENT_ID>/<RELEASE_ID>/test-report.md` use `../../../onshape/cad_registry.md`; validate the link after copying)
 - Release Manifest backlink: PENDING (file must exist before link is treated as valid)
 
 Cross-reference [ME1 Onshape Requirements V2](../../../docs/project_management/NCKH_ME1_ONSHAPE_CAD_GITHUB_WORKFLOW_REQUIREMENTS_V2.md).
