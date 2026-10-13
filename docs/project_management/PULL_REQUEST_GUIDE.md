@@ -93,46 +93,38 @@ Chỉ merge khi:
 
 ---
 
-## Ví dụ 2 — ME1 cập nhật fixture
+## Ví dụ 2 — ME1 cập nhật fixture bằng Onshape
 
-Branch:
+**CAD cho mọi thiết kế mới:** dùng hai Onshape Document riêng `CAD TEST` / `ME1_MAIN_CAD`. Kiểm tra account/privacy/ACL trước khi đăng nghiên cứu. Chỉ release từ **immutable Version ID + Version URL** của MAIN, không dùng Workspace URL.
+
+**Branch ví dụ** (chỉ khi repo và working tree sạch):
 
 ```bash
 git switch dev
-git pull origin dev
+git fetch origin
+git merge --ff-only origin/dev
 git switch -c feature/me1-fixture-v01
 ```
 
-Lưu file:
+**Hồ sơ phải có khi có CAD thật:**
 
 ```text
-hardware/mechanical/solidworks/parts/
-hardware/mechanical/solidworks/assemblies/
-hardware/mechanical/solidworks/drawings/
+hardware/mechanical/onshape/cad_registry.md
+hardware/mechanical/onshape/release_manifest_template.md
+hardware/mechanical/reports/TEST_REPORT_TEMPLATE.md
 hardware/mechanical/step/
 hardware/mechanical/dxf/
 hardware/mechanical/fabrication/
-hardware/bom/
+hardware/bom/MECHANICAL_BOM_TEMPLATE.csv
 ```
 
-Commit:
+`cad-source/scripts/`, `drawings/`, `stl/`, và báo cáo `reports/<COMPONENT_ID>/<RELEASE_ID>/test-report.md` chỉ được tạo nếu có script/exports/tests thực. Không tạo SolidWorks mới; `solidworks/` là **LEGACY**.
 
-```bash
-git add .
-git commit -m "feat(mechanical): add fixture v0.1 design"
-git push -u origin feature/me1-fixture-v01
-```
+**PR ME1 ghi rõ:** Component ID/engineering Revision/fixture Version/setup Version, Onshape MAIN Version ID/URL và reviewer access đã xác minh, đơn vị/hệ trục/datum, motor/coupling/ADXL345 mounting/clearance, Drawing/STEP/DXF, BOM, test report (PASS/FAIL/NOT_RUN/BLOCKED/N/A + lý do/evidence), release manifest/human decision. Không tự điền URL hoặc kết quả mô phỏng giả.
 
-PR phải ghi:
-- motor dimensions;
-- adjustable range;
-- sensor mounting reference;
-- coupling/load assumptions;
-- BOM;
-- drawing/export;
-- acceptance criteria.
+**Human preflight/commit/push:** kiểm `git status`, `git diff`, stage **đúng file** (không `git add .`), kiểm `git diff --cached`, rồi human commit/push `feature/me1-fixture-v01`, PR base `dev`. Codex review traceability; **ME1 human review CAD/fabrication/safety**. Document migration policy phải có Project Update trước khi áp dụng cho toàn nhóm.
 
-Codex chỉ hỗ trợ consistency/traceability. ME1 vẫn phải review CAD và safety.
+Chi tiết: [ME1 Onshape Requirements V2](NCKH_ME1_ONSHAPE_CAD_GITHUB_WORKFLOW_REQUIREMENTS_V2.md).
 
 ---
 
