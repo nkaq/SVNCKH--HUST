@@ -88,7 +88,7 @@ A measured `PASS` needs agreed repetition/acceptance thresholds, real raw proven
 - Test author and qualified checker: PENDING
 - Human CAD/fabrication/safety approval reference: PENDING
 - Decision: **PENDING — NOT RELEASED**
-- Registry backlink: [CAD Registry](../onshape/cad_registry.md) (for a real report at `reports/<COMPONENT_ID>/<RELEASE_ID>/test-report.md` use `../../../onshape/cad_registry.md`; validate the link after copying)
-- Release Manifest backlink: PENDING (file must exist before link is treated as valid)
+- Registry backlink: repo-root path `hardware/mechanical/onshape/cad_registry.md`. For a **real report** at `hardware/mechanical/reports/<COMPONENT_ID>/<RELEASE_ID>/test-report.md`, use `../../../onshape/cad_registry.md` and validate the link after copying.
+- Release Manifest backlink: PENDING. Once a genuine release manifest exists, from the **real report location** use `../../../fabrication/<RELEASE_ID>/manifest.md`; verify the relative path and matching release ID.
 
-Cross-reference [ME1 Onshape Requirements V2](../../../docs/project_management/NCKH_ME1_ONSHAPE_CAD_GITHUB_WORKFLOW_REQUIREMENTS_V2.md).
+ME1 Onshape V2 spec repo-root path: `docs/project_management/NCKH_ME1_ONSHAPE_CAD_GITHUB_WORKFLOW_REQUIREMENTS_V2.md`; when copied under `reports/<COMPONENT_ID>/<RELEASE_ID>/`, use `../../../../../docs/project_management/NCKH_ME1_ONSHAPE_CAD_GITHUB_WORKFLOW_REQUIREMENTS_V2.md` only after checking the file actually exists. **Do not copy template-relative Markdown links without resolving paths in the final report.**
