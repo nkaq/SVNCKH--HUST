@@ -221,7 +221,7 @@ hardware/
 | `hardware/mechanical/AGENTS.md` | Kiểm tra; **chỉ sửa nhỏ** nếu cần Codex hiểu Onshape/version/safety | Không xóa Human Gate |
 | `docs/project_management/NCKH_MEMBER_WORKSPACE_FILETYPE_GUIDE_V3.md` | Thêm `.step/.stp/.stl/.pdf/.dxf/.py` và Onshape link/version; bỏ SolidWorks khỏi **recommended new output** | Có thể cần phiên bản hướng dẫn mới |
 | `docs/project_management/REPOSITORY_STRUCTURE.md` | Sửa ví dụ cơ khí hiện hành; phân biệt legacy | Không đổi ownership |
-| `.gitattributes` | Kiểm LFS cho STEP/STL/PDF **theo nhu cầu/kích thước**, không bật bừa | Snapshot hiện có chỉ LFS `*.SLD*`, `*.pptx`, `*.psd` |
+| `.gitattributes` | **PR #20 mở rộng sau quyết định ME1:** bảo toàn byte STEP/STP/STL/DXF bằng `-text -eol` (hoa/thường), **không bật LFS mới** | Đã thử synthetic byte round-trip trên Git tạm; thực tế Onshape/Windows và quota LFS vẫn `NOT_RUN/PENDING` |
 | `.gitignore` | Thêm ignore chỉ cho **cache/temp/export thừa đã xác minh** | Không ignore nhầm file `.step` cần phát hành |
 | `hardware/bom/BOM_TEMPLATE.csv` | Đánh giá cột ID/revision/material/quantity/supplier/status | Không tự gán giá/nhà cung cấp |
 | `docs/project_management/NCKH_TWO_STAGE_CODEX_SKILLS_WORKFLOW_HANDBOOK_V1.md` | Chỉnh phần ME1 nếu vẫn ghi SolidWorks là workflow chính | Không ghi đè toàn bộ handbook |
@@ -423,11 +423,13 @@ MAIN: DRAFT -> UNDER_REVIEW -> APPROVED -> RELEASED -> SUPERSEDED
 
 Snapshot đã kiểm tra trên `dev`: `.gitattributes` có LFS cho `*.SLDPRT`, `*.SLDASM`, `*.SLDDRW`, `*.pptx`, `*.psd`; `.png`, `.jpg`, `.jpeg`, `.pdf` được đánh dấu binary; **không thấy LFS rule cho `*.step`, `*.stp`, `*.stl`, `*.pdf`, `*.dxf`**. Root `.gitattributes` còn dùng **`* text=auto eol=lf`**; ASCII STEP/STL và DXF có thể bị Git chuẩn hóa newline/byte khi add/checkout nếu thiếu scoped binary override, dù file vẫn mở được trong CAD. `.gitignore` có nhiều quy tắc cache/temporary/SolidWorks và raw data. Đây là **bằng chứng cần kiểm lại trên HEAD mới nhất**, không phải chỉ đạo tự thêm LFS.
 
-### 8.1.1. BYTE-INTEGRITY GATE cho STEP/STL/DXF (chưa triển khai config trong PR này)
+### 8.1.1. BYTE-INTEGRITY GATE cho STEP/STP/STL/DXF (đã cấu hình trong PR #20; chưa verify export thật)
 
-**BLOCKED — CAD EXPORT BYTE INTEGRITY** trước fabrication release nếu file STEP/STP, STL (kể cả ASCII), DXF hoặc binary khác bị quy tắc `* text=auto eol=lf` tự động chuẩn hóa byte. SHA256 tính lúc export có thể khác SHA sau Git checkout. LFS-vs-normal-Git là một quyết định **khác** với text-vs-binary. Bắt buộc ME1 duyệt **PR cấu hình riêng** cho scoped `-text`/binary attributes phù hợp (.step/.stp/.stl/.dxf, và formats khác có căn cứ) **trước khi commit export làm release**; đây là file `.gitattributes` **ngoài danh sách 16 file đã duyệt**, nên không tự sửa trong PR tài liệu này.
+**Cấu hình bảo toàn byte được ME1 bổ sung phạm vi trong PR #20:** root `.gitattributes` có các glob cho `.step/.stp/.stl/.dxf` (cả chữ hoa/chữ thường) với `-text -eol` để **vô hiệu hóa text/eol conversion** cho neutral CAD exports. Đây là cơ chế bảo toàn byte **độc lập hoàn toàn với Git LFS**; không tự cài/bật Git LFS hoặc thay rules SolidWorks cũ. Nhóm phải kiểm tra pattern và phiên bản Git thực trước khi phát hành.
 
-Kiểm chứng bắt buộc khi cấu hình được phép: `git check-attr -a -- <ACTUAL_EXPORT_PATH>`, SHA256 của export gốc → add/commit/checkout trên môi trường thực (Windows/Linux nếu nhóm dùng) → compare SHA256 byte-for-byte, xác nhận đúng định dạng/units và reviewer. Không tạo sample CAD giả để tuyên bố PASS. Đến lúc có bằng chứng, ghi `NOT_RUN/BLOCKED` và không coi artifact chưa chắc byte-identical là fabrication release.
+**Đã kiểm chứng có giới hạn:** dùng repository Git **tạm** với payload byte giả lập có CRLF và byte không phải văn bản; `git check-attr` trả `text: unset`, `eol: unset` cho `.step`, `.STEP`, `.StP`, `.stl`, `.DXF`; Git add/commit/checkout giữ nguyên SHA256 trong thử nghiệm đó. **Không tạo hay khẳng định đây là bản xuất Onshape/CAD thực.**
+
+**Còn bắt buộc trước fabrication release thật:** tạo export **thật** từ MAIN Version bất biến; trên môi trường Windows Git/team và các nền tảng áp dụng, chạy `git check-attr -a -- <ACTUAL_EXPORT_PATH>`, hash SHA256 file gốc → stage/commit/checkout → so byte/hash; xác nhận units, lựa chọn export và kiểm hình học/engineering bởi người có trách nhiệm. Khi chưa có bằng chứng này ghi `NOT_RUN/BLOCKED — REAL EXPORT BYTE INTEGRITY`, không dùng synthetic test làm căn cứ chốt release. File lớn/quota/LFS policy vẫn `PENDING`.
 
 ### 8.2. Cách quyết định file gì nên đưa lên Git
 
