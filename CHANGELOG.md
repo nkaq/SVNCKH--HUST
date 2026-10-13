@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### ME1 CAD workflow proposal — 2026-10-13
+- **PROPOSED / NOT ACTIVE:** Onshape is ME1's chosen native CAD tool for new designs; introduces CAD TEST/ME1_MAIN_CAD separation, fixed-Version registry, mechanical release/verification/BOM templates and traceability documentation. Existing SolidWorks folders remain LEGACY/READ-ONLY; historical Week 3 material is unchanged.
+- Scope: `hardware/mechanical/`, ME1 portions of active workflow guides, and proposed Project Update `docs/project_management/NCKH_ME1_ONSHAPE_PROJECT_UPDATE_PROPOSAL_V1.md` (ME1 owner; review/announcement/ACK pending).
+- No fabricated CAD, fabrication release, solver outcome, hardware or physical Ground Truth change; effective date and Onshape account/privacy decisions remain PENDING.
+
+
 ### Added
 - Initial monorepo structure
 - Git workflow
