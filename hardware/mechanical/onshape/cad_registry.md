@@ -18,7 +18,16 @@
 
 Các trường `supersedes` (release này thay thế bản nào) và `superseded_by` (release mới đã thay thế bản này) nhận **Release ID** thật, không phải engineering Revision. Ví dụ state transition *chỉ để kiểm quy tắc*: R01 đã RELEASED → khi R02 được duyệt/RELEASED thì R01 = SUPERSEDED, R01.superseded_by = R02, R02.supersedes = R01; một candidate gặp thiếu evidence được BLOCKED hoặc REJECTED thay vì gắn RELEASED. Đây không phải Release ID thực tế.
 
-**Không thêm row ví dụ giả**: chỉ ghi bản ghi khi có Part/Assembly ID thật, Version thực và đường dẫn artifact đang tồn tại. `component_id`, `engineering_rev`, `release_id`, `fixture_version`, `setup_version`, Onshape Version ID và Git SHA là **các loại định danh khác nhau**; không suy diễn từ nhau.
+## Candidate/blocked design index (may lack exports and fixed Version)
+
+This is a **separate table from the release index**. Record a trial/candidate with an assigned `candidate_ref` as soon as it enters review or is BLOCKED/REJECTED; missing Onshape ID, Version and artifact paths are `PENDING` or `N/A + reason`, **never fabricated**. The candidate is not a release or fixture approval.
+
+| candidate_ref | component_id (if assigned) | environment | Onshape Document/Workspace/Version (if available) | state | missing evidence/artifact | blocked_or_rejected_reason | owner | decision_ref | updated_at + timezone |
+|---|---|---|---|---|---|---|---|---|---|
+
+Allowed candidate transitions: `DRAFT → UNDER_REVIEW → TESTED/REJECTED/BLOCKED`; when a blocker is resolved with human decision, `BLOCKED → UNDER_REVIEW`. Rejected/blocked entries remain as auditable history with real `decision_ref` when available. **Do not promote to release index until MAIN immutable Version, approved traceable identity and required release artifacts exist**.
+
+**Released/controlled component index only:** require verified Version and real artifact links for `APPROVED/RELEASED/SUPERSEDED` rows. Candidates before release belong in the table above; never invent release IDs/paths.  `component_id`, `engineering_rev`, `release_id`, `fixture_version`, `setup_version`, Onshape Version ID và Git SHA là **các loại định danh khác nhau**; không suy diễn từ nhau.
 
 ## Registry rules
 
