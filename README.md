@@ -220,58 +220,31 @@ Issue
 
 ---
 
-## 8. Ví dụ cụ thể cho ME1
+## 8. Ví dụ cụ thể cho ME1 — Onshape CAD (thiết kế mới)
 
-### Task
-Thiết kế `Fixture v0.1`.
+**Tình huống minh họa (không phải fixture đã nghiệm thu):** chuẩn bị hồ sơ Fixture v0.1 theo [ME1 Onshape Requirements V2](docs/project_management/NCKH_ME1_ONSHAPE_CAD_GITHUB_WORKFLOW_REQUIREMENTS_V2.md).
 
-### Folder
+**Source CAD native:** Onshape **CAD TEST** cho thử nghiệm và **ME1_MAIN_CAD** cho ứng viên được kiểm soát. ME1 xác minh tài khoản/privacy và quyền reviewer trước khi đưa CAD nghiên cứu lên cloud. Chỉ Onshape **MAIN immutable Version ID + Version URL** mới làm nguồn xuất bản release. SolidWorks cũ thuộc `hardware/mechanical/solidworks/` là **LEGACY/READ-ONLY**.
 
-```text
-hardware/mechanical/solidworks/parts/
-hardware/mechanical/solidworks/assemblies/
-hardware/mechanical/solidworks/drawings/
-hardware/mechanical/step/
-hardware/mechanical/dxf/
-hardware/mechanical/fabrication/
-hardware/bom/
-```
-
-### Branch
-
-```bash
-git switch dev
-git pull origin dev
-git switch -c feature/me1-fixture-v01
-```
-
-### Làm gì?
-
-- SolidWorks assembly;
-- motor plate điều chỉnh;
-- coupling/load interface;
-- vị trí ADXL345/PT100/Hall;
-- cable clearance;
-- drawing/STEP/DXF;
-- BOM;
-- Fixture Acceptance Checklist.
-
-### Commit / push
-
-```bash
-git add .
-git commit -m "feat(mechanical): add fixture v0.1 design"
-git push -u origin feature/me1-fixture-v01
-```
-
-### PR
+**Folder GitHub:**
 
 ```text
-base: dev
-compare: feature/me1-fixture-v01
+hardware/mechanical/onshape/cad_registry.md
+hardware/mechanical/onshape/release_manifest_template.md
+hardware/mechanical/reports/TEST_REPORT_TEMPLATE.md
+hardware/mechanical/step/                   # xuất từ MAIN Version khi có
+hardware/mechanical/dxf/                    # khi gia công 2D cần
+hardware/mechanical/drawings/               # Drawing PDF thật khi có
+hardware/mechanical/cad-source/scripts/     # chỉ khi thực sự có script
+hardware/mechanical/fabrication/            # manifest release thật khi có
+hardware/bom/MECHANICAL_BOM_TEMPLATE.csv
 ```
 
-Codex review consistency/traceability; **ME1 vẫn phải human-review CAD và safety**.
+**Branch:** kiểm `git status --short` và bảo toàn thay đổi trước khi sync; từ `dev` sạch tạo `feature/me1-fixture-v01`. Nếu `git pull --ff-only` lỗi do cấu hình local, có thể dùng `git fetch origin` rồi `git merge --ff-only origin/dev` khi đang đứng tại `dev` và đã kiểm tra đúng remote.
+
+**Deliverables (chỉ tạo khi có thiết kế thực):** motor/shaft/coupling, vị trí gá ADXL345 và các cảm biến, datum/đơn vị/tolerance/clearance, STEP/Drawing, BOM, [test report template](hardware/mechanical/reports/TEST_REPORT_TEMPLATE.md), release manifest/registry trỏ phiên bản và evidence. Linear Static/Modal khi thực sự có công cụ và load case; không suy ra forced vibration hay safety PASS từ mô hình.
+
+**Human Git:** xem `git diff` và stage **chính xác file task**, kiểm `git diff --cached` rồi human commit/push trên feature branch, PR vào `dev`. Codex kiểm tính nhất quán và giúp test bằng chứng; ME1 chịu trách nhiệm duyệt CAD, fabrication, fixture acceptance và Ground Truth. Không release khi Onshape Version/reviewer/criteria chưa được xác minh.
 
 ---
 
