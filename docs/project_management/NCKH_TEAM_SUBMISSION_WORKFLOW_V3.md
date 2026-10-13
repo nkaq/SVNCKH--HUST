@@ -80,13 +80,27 @@ Không đặt sản phẩm code/CAD chính trong `docs/plans/`; folder này ch�
 
 | Thành viên | Phạm vi chính | Artifact điển hình |
 |---|---|---|
-| **ME1** | `hardware/mechanical/`, `docs/architecture/`, `experiments/protocols/`, `hardware/bom/` | SolidWorks `.SLDPRT/.SLDASM/.SLDDRW`, `.STEP`, `.DXF`, `.md`, BOM `.csv` |
+| **ME1** | `hardware/mechanical/`, `docs/architecture/`, `experiments/protocols/`, `hardware/bom/` | **Onshape** native source via immutable MAIN Version **reference** (Document/Version/Element ID + URL); GitHub keeps CAD registry, verified STEP, Drawing PDF, DXF as applicable, report/manifest, BOM `.csv`, `.md` — **migration PROPOSED, not ACTIVE until ME1 Project Update**; `.SLDPRT/.SLDASM/.SLDDRW` are **legacy only**, not new-task deliverables |
 | **MS2** | `experiments/sensor_characterization/`, `results/`; phối hợp `ml/drift_detection/` | ADXL345 calibration, `.py`, `.ipynb`, `.csv`, plot `.png/.svg`, report `.md` |
 | **EE2** | `firmware/esp32s3/` | `.cpp`, `.h`, `.ino`, firmware test, acquisition/logging evidence |
 | **ET1** | `hardware/electronics/`, `hardware/bom/` | Schematic, wiring, pinout, `.kicad_sch/.kicad_pcb` (nếu dùng KiCad), `.pdf`, BOM |
 | **IT2** | `ml/`, `software/`, `data/`, `results/` | `.py`, `.ipynb`, `.json/.yaml`, feature scripts, models `.tflite`, plots, benchmarks |
 
 **Owner theo subsystem, không theo đuôi file.** Thành viên được chỉnh folder phối hợp nếu task cho phép và đã báo người chịu trách nhiệm phần đó. `members/` chỉ dành cho note/draft/report cá nhân, không phải nơi đặt artifact chính.
+
+### 3.1. ME1 — Onshape native CAD submission, proposed migration (PR #20)
+
+**Decision and precedence:** ME1 has chosen Onshape for **new** mechanical designs. The new format is a **PROPOSED amendment**, not an immediately ACTIVE replacement. The current Week 3 record was amended to preserve the original `Fixture + SolidWorks + DFM + Architecture v0.3` wording in its **historical** section and documents the proposed Onshape handoff. Until PR #20 is merged and ME1 formally announces its effective date/condition via [ME1 Project Update](NCKH_ME1_ONSHAPE_PROJECT_UPDATE_PROPOSAL_V1.md), affected ME1 native-CAD deliverables remain `BLOCKED — ME1 CAD SOURCE/DELIVERABLE TRANSITION`. No one should auto-rewrite a task ID or mark an unapproved report `PASS`. [Week 3 task source](../plans/week03/README.md) remains authoritative for historical task scope; actual new-format handoff must have ME1's documented decision.
+
+**Only once the transition is formally effective, new ME1 CAD task submissions must include as applicable:**
+
+- **Native source of truth is Onshape cloud, not GitHub.** Record *actual* Onshape `ME1_MAIN_CAD` Document ID, immutable MAIN **Version ID + Version URL**, Element ID, component/engineering revision, access/owner and (if relevant) CAD TEST candidate provenance in [CAD registry](../../hardware/mechanical/onshape/cad_registry.md). CAD TEST must not be used as fabrication baseline; a mutable Workspace link does not count as release reference. Verify account privacy/access before any restricted CAD upload.
+- **Only real exports/evidence in Git:** neutral STEP under `hardware/mechanical/step/`, Drawing PDF in `hardware/mechanical/drawings/`, DXF in `hardware/mechanical/dxf/` if required, script/parameters only when actually used, and [Mechanical BOM template](../../hardware/bom/MECHANICAL_BOM_TEMPLATE.csv) populated from real components. Preserve actual `exported_by`, `exported_at` with timezone, export settings/units, file size and SHA256 where measured.
+- **Verification:** [ME1 Test Report template](../../hardware/mechanical/reports/TEST_REPORT_TEMPLATE.md) for real analysis/tests. Document fixture/setup version, sensor mounting/coordinates, alignment, selected simulation/physical tests, raw evidence locations, findings and human safety/fixture decision. `repo-quality` does not run CAD/FEA/hardware validation; no fabricated `PASS`.
+- **Release:** [Release Manifest template](../../hardware/mechanical/onshape/release_manifest_template.md) maps fixed MAIN Version ↔ exact export ↔ Drawing/BOM ↔ report, and only becomes a file at `hardware/mechanical/fabrication/<RELEASE_ID>/manifest.md` for an actual reviewed release. `.gitattributes` must preserve actual STEP/STL/DXF byte content (separate decision from Git LFS quota) and SHA256 should be checked through Git checkout before fabrication.
+- **Legacy compatibility:** `hardware/mechanical/solidworks/` and `simulations/solidworks_motion/` remain historical/read-only; existing LFS tracking retained. No request to generate new `.SLD*` files, move/delete historical records or convert CAD by assumption.
+
+Task IDs/acceptance/deadline for any active amended task come from the ME1-approved [Week 3/weekly README](../plans/week03/README.md) and Project Update, not from this generic guide. Documentation/Onshape handoff alone cannot grant Ground Truth/dataset, physical safety or fabrication approval.
 
 ---
 

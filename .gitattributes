@@ -7,6 +7,14 @@
 *.pptx filter=lfs diff=lfs merge=lfs -text
 *.psd filter=lfs diff=lfs merge=lfs -text
 
+# ME1 neutral CAD exports — byte integrity (Git normal/CRLF normalization disabled).
+# Separate from LFS choice; verify real STEP/STP/STL/DXF exports and SHA256 after checkout before fabrication release.
+# Case-insensitive extension matching by bracket patterns (Git path matching is case-sensitive).
+*.[sS][tT][eE][pP] -text -eol
+*.[sS][tT][pP] -text -eol
+*.[sS][tT][lL] -text -eol
+*.[dD][xX][fF] -text -eol
+
 # Binaries
 *.png binary
 *.jpg binary
