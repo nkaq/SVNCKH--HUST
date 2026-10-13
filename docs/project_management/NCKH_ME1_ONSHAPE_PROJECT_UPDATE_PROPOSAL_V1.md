@@ -13,13 +13,15 @@
 - **Announcement channel and ACK due:** PENDING — ME1 lựa chọn; chưa gửi.
 - **Affected:** ME1; MS2, EE2, ET1, IT2 cần biết tác động tới fixture, mounting, BOM, setup metadata/thu dữ liệu khi liên quan.
 - **ACK:** ME1 PENDING; MS2 PENDING; EE2 PENDING; ET1 PENDING; IT2 PENDING.
-- **Supersedes:** quy ước *thiết kế mới* dựa trên SolidWorks trong các hướng dẫn chủ động; **không** sửa hồi tố kế hoạch Week 3, CAD lịch sử hoặc protocol đã nghiệm thu.
+- **Supersedes (chỉ SAU khi ACTIVE):** quy ước *thiết kế mới* dựa trên SolidWorks trong các hướng dẫn chủ động có hiệu lực tương ứng; **không** sửa hồi tố kế hoạch Week 3, CAD lịch sử hoặc protocol đã nghiệm thu.
+- **P1 source conflict:** `docs/plans/week03/README.md` hiện vẫn ghi task “Fixture + SolidWorks” là ACTIVE, còn `docs/project_management/NCKH_TEAM_SUBMISSION_WORKFLOW_V3.md` vẫn hướng dẫn nộp `.SLDPRT/.SLDASM/.SLDDRW`. Hai nguồn này nằm **ngoài scope 16 file được phép sửa**, nên PR chỉ ghi xung đột chứ **không ngầm supersede**. ME1 phải mở quyết định/Project Update hợp lệ để sửa phần active source tương ứng nếu tuần này còn áp dụng; thành viên gặp xung đột báo `BLOCKED — SOURCE CONFLICT` và chờ task source mới, không tự chuyển deliverable và không phải quay lại dùng SolidWorks.
 
 ## OLD → NEW
 
 - OLD: `hardware/mechanical/solidworks/` và `.SLDPRT/.SLDASM/.SLDDRW` còn được liệt kê là workflow chủ đạo cho thiết kế mới.
 - NEW: **Onshape-only cho CAD native mới**; hai Document `CAD TEST` và `ME1_MAIN_CAD` (định danh thật PENDING), nguồn release bất biến là **MAIN Version ID/URL**, GitHub quản lý registry, script (nếu có), STEP/Drawing PDF/DXF/BOM, evidence và report.
 - Bảo toàn SolidWorks legacy/LFS cũ; không bắt buộc conversion hay xóa file.
+- Cẩm nang Two-stage có bổ sung ME1 Onshape dưới **version V1.2** (không dùng bản V1.1 để đại diện hướng dẫn mới); xem `NCKH_TWO_STAGE_CODEX_SKILLS_WORKFLOW_HANDBOOK_V1.md`, tên path giữ để tương thích liên kết cũ.
 - Không thay locked hardware, fixture approval, dataset/GT protocol hoặc quyền chuyên môn.
 
 ## Action after a reviewed merge
