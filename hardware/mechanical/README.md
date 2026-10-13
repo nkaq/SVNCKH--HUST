@@ -1,6 +1,6 @@
-# Mechanical Testbench — Onshape-first (ME1)
+# Mechanical Testbench — ME1 Onshape migration proposal (not yet ACTIVE)
 
-**Owner:** ME1 (`@nkaq`). **Current tool for all new mechanical CAD:** **Onshape** (Part Studio, Assembly, Drawing, controlled Versions). **No new SolidWorks design**. Existing `solidworks/` files/directories are **LEGACY/READ-ONLY** for historical traceability; preserve their paths, including older exports. This document does **not** certify an actual fixture design or safety.
+**Owner:** ME1 (`@nkaq`). **ME1's chosen target tool for new mechanical CAD:** **Onshape** (Part Studio, Assembly, Drawing, controlled Versions). **This PR proposes the replacement workflow; it is not yet an ACTIVE, team-wide task/deliverable instruction.** Until the ME1 Project Update and current-week task-source conflict are formally resolved, this draft does not supersede `docs/plans/week03/README.md` or `NCKH_TEAM_SUBMISSION_WORKFLOW_V3.md`. ME1 does not intend to create new SolidWorks designs; any currently assigned conflicting deliverable must be marked `BLOCKED — SOURCE CONFLICT` and reissued/confirmed by ME1 rather than silently changing it. Existing `solidworks/` files/directories remain **LEGACY/READ-ONLY** for historical traceability. This document does **not** certify any actual fixture design or mechanical safety.
 
 ## Status and conflict with current weekly assignment
 
@@ -28,7 +28,7 @@ Before uploading research CAD: ME1 verifies Onshape subscription, Document priva
 | Optional mesh/preview | `stl/`, `previews/` | STL/PNG only when needed; neither is native parametric CAD |
 | Verification | `reports/TEST_REPORT_TEMPLATE.md` → `reports/<COMPONENT_ID>/<RELEASE_ID>/test-report.md` | Template exists; real report only after tests |
 | BOM | `../bom/MECHANICAL_BOM_TEMPLATE.csv` | Real BOM must reference Part ID, Revision and CAD Version; coordinate with ET1 |
-| Legacy | `solidworks/` | **Do not delete/move/rename**, no new SolidWorks files for active ME1 work |
+| Legacy | `solidworks/` | **Do not delete/move/rename**; historical artifacts only; new-task migration remains PROPOSED pending authoritative task-source update |
 
 `fabrication/`, `step/` and `dxf/` pre-exist. Directory rows without tracked files are **not** a request to create empty placeholder artifacts.
 
