@@ -5,7 +5,7 @@
 - **Update ID:** PENDING — ME1 cấp ID chính thức, không bịa.
 - **Impact:** B — công cụ và chuẩn bàn giao CAD/fixture, tài liệu GitHub và quy trình liên quan.
 - **Owner:** ME1 (`@nkaq`); BOM phối hợp ET1 (`@tiendatvu13`).
-- **Scope PR:** chỉ **10 UPDATE + 6 CREATE** thuộc kế hoạch đã duyệt; không sửa SolidWorks legacy, firmware, data hoặc Ground Truth.
+- **Scope PR #20 (ME1 approved expansion):** **10 UPDATE + 6 CREATE** ban đầu, thêm **3 UPDATE** gồm `docs/plans/week03/README.md`, `docs/project_management/NCKH_TEAM_SUBMISSION_WORKFLOW_V3.md`, `.gitattributes` — tổng **19 file**. Không sửa SolidWorks legacy, firmware, data hoặc Ground Truth.
 - **Source:** [ME1 Onshape Requirements V2](NCKH_ME1_ONSHAPE_CAD_GITHUB_WORKFLOW_REQUIREMENTS_V2.md).
 - **PR / merged commit:** PENDING (ghi URL/SHA thật sau khi có).
 - **Decision / Human Gate:** ME1 đã duyệt phạm vi chuẩn hóa tài liệu; việc khóa geometry, safety, experiment/GT và fixture release là gate riêng, chưa được cấp.
@@ -14,13 +14,14 @@
 - **Affected:** ME1; MS2, EE2, ET1, IT2 cần biết tác động tới fixture, mounting, BOM, setup metadata/thu dữ liệu khi liên quan.
 - **ACK:** ME1 PENDING; MS2 PENDING; EE2 PENDING; ET1 PENDING; IT2 PENDING.
 - **Supersedes (chỉ SAU khi ACTIVE):** quy ước *thiết kế mới* dựa trên SolidWorks trong các hướng dẫn chủ động có hiệu lực tương ứng; **không** sửa hồi tố kế hoạch Week 3, CAD lịch sử hoặc protocol đã nghiệm thu.
-- **P1 source conflict:** `docs/plans/week03/README.md` hiện vẫn ghi task “Fixture + SolidWorks” là ACTIVE, còn `docs/project_management/NCKH_TEAM_SUBMISSION_WORKFLOW_V3.md` vẫn hướng dẫn nộp `.SLDPRT/.SLDASM/.SLDDRW`. Hai nguồn này nằm **ngoài scope 16 file được phép sửa**, nên PR chỉ ghi xung đột chứ **không ngầm supersede**. ME1 phải mở quyết định/Project Update hợp lệ để sửa phần active source tương ứng nếu tuần này còn áp dụng; thành viên gặp xung đột báo `BLOCKED — SOURCE CONFLICT` và chờ task source mới, không tự chuyển deliverable và không phải quay lại dùng SolidWorks.
+- **P1 source reconciliation (PR #20):** `docs/plans/week03/README.md` đã bổ sung **ME1 Onshape amendment đang PROPOSED**; nguyên văn nhiệm vụ “Fixture + SolidWorks + DFM + Architecture v0.3” giữ trong mục lịch sử. `NCKH_TEAM_SUBMISSION_WORKFLOW_V3.md` đã bổ sung đường nộp Onshape Version/STEP/Drawing/BOM/report, đánh dấu không hiệu lực trước Project Update. **Không còn yêu cầu tạo SolidWorks mới khi chuyển đổi chính thức**. Trước lúc PR merge + ME1 công bố ngày/điều kiện hiệu lực, giao việc native CAD ME1 đang xung đột vẫn `BLOCKED — ME1 CAD SOURCE/DELIVERABLE TRANSITION`; không được tự đánh dấu nhóm đã chuyển đổi. Task ID, deadline và acceptance thiếu phải được ME1 bổ sung/duyệt, không tự sinh.
 
 ## OLD → NEW
 
 - OLD: `hardware/mechanical/solidworks/` và `.SLDPRT/.SLDASM/.SLDDRW` còn được liệt kê là workflow chủ đạo cho thiết kế mới.
 - NEW: **Onshape-only cho CAD native mới**; hai Document `CAD TEST` và `ME1_MAIN_CAD` (định danh thật PENDING), nguồn release bất biến là **MAIN Version ID/URL**, GitHub quản lý registry, script (nếu có), STEP/Drawing PDF/DXF/BOM, evidence và report.
 - Bảo toàn SolidWorks legacy/LFS cũ; không bắt buộc conversion hay xóa file.
+- **CAD neutral-export byte policy (PR #20):** `.gitattributes` bổ sung `-text -eol` cho STEP/STP/STL/DXF (cả extension hoa/thường), tách biệt lựa chọn Git LFS. Đã test thuộc tính và byte/hash Git stage/checkout trên **payload giả lập trong repository tạm**; **chưa test trên export Onshape thật, Windows/Linux team hoặc quota LFS**. Chỉ phát hành fabrication sau khi kiểm thực tế bằng export gốc và SHA256 sau checkout.
 - Cẩm nang Two-stage có bổ sung ME1 Onshape dưới **version V1.2** (không dùng bản V1.1 để đại diện hướng dẫn mới); xem `NCKH_TWO_STAGE_CODEX_SKILLS_WORKFLOW_HANDBOOK_V1.md`, tên path giữ để tương thích liên kết cũ.
 - Không thay locked hardware, fixture approval, dataset/GT protocol hoặc quyền chuyên môn.
 
