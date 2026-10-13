@@ -21,7 +21,7 @@ Repository này là **bộ nhớ kỹ thuật/version-control chính thức củ
 - firmware;
 - dashboard;
 - ML/TinyML;
-- SolidWorks/CAD;
+- Onshape native CAD for new ME1 designs (SolidWorks files retained as LEGACY only);
 - sơ đồ điện;
 - mô phỏng;
 - ảnh;
@@ -103,13 +103,18 @@ SVNCKH--HUST/
 │
 ├── hardware/
 │   ├── mechanical/
-│   │   ├── solidworks/
+│   │   ├── solidworks/          # LEGACY/READ-ONLY (keep old subfolders)
 │   │   │   ├── parts/
 │   │   │   ├── assemblies/
 │   │   │   └── drawings/
+│   │   ├── onshape/             # cad_registry.md / release_manifest_template.md
+│   │   ├── reports/             # TEST_REPORT_TEMPLATE.md; reports only when real
 │   │   ├── step/
 │   │   ├── dxf/
-│   │   └── fabrication/
+│   │   ├── fabrication/
+│   │   ├── cad-source/          # only if real Python scripts exist
+│   │   ├── drawings/            # only if release PDF exists
+│   │   └── stl/                 # optional, only when actual export exists
 │   │
 │   ├── electronics/
 │   │   ├── schematics/
@@ -246,14 +251,15 @@ docs/plans/
 ME1 đưa vào repo:
 
 ```text
-SolidWorks parts
-SolidWorks assemblies
-drawings
-STEP
-DXF
-fabrication package
-BOM
-Fixture Acceptance Checklist
+Onshape CAD TEST (thử nghiệm) và ME1_MAIN_CAD (source CAD native mới)
+MAIN immutable Version ID + Version URL (không phải Workspace URL)
+Onshape CAD Registry và release manifest template
+STEP và Drawing PDF từ MAIN Version cố định khi có release thực
+DXF nếu cần gia công; STL/PNG nếu cần xem trước
+Python text-to-cad scripts/params khi có source thật
+BOM có Part ID / Revision / Version
+Mechanical Test Report + Fixture Acceptance Checklist (kết quả thực)
+SolidWorks chỉ LEGACY, không dùng để tạo CAD mới
 System Architecture
 Experimental Matrix
 Ground Truth Protocol
@@ -706,42 +712,15 @@ Mọi box chat phải giữ quy tắc này khi hướng dẫn thành viên lưu 
 
 ---
 
-# 14. SOLIDWORKS / PPTX / FILE BINARY
+# 14. ONSHAPE CAD / LEGACY SOLIDWORKS / FILE BINARY
 
-Các file lớn/binary:
+**Thiết kế cơ khí mới:** Onshape native ở Document `ME1_MAIN_CAD` có **Version ID/URL cố định**. `CAD TEST` là Document riêng thử nghiệm; không coi TEST export/import đã qua engineering review. Trên GitHub, registry `hardware/mechanical/onshape/cad_registry.md` liên kết chính xác version, export, BOM, report và manifest; không commit Onshape token hoặc dữ liệu phải private lên cloud public.
 
-```text
-*.SLDPRT
-*.SLDASM
-*.SLDDRW
-*.pptx
-```
+**Legacy:** `hardware/mechanical/solidworks/` và `simulations/solidworks_motion/` là READ-ONLY để truy vết; `.SLDPRT/.SLDASM/.SLDDRW` vẫn được `.gitattributes` dùng LFS trong repo, **không xóa rule cũ** và không tạo file mới dạng này.
 
-phải ưu tiên Git LFS.
+**Bản xuất mới:** STEP cho 3D, Drawing PDF cho fabrication, DXF khi cần cắt/laser, STL preview khi cần. Không biến STL hoặc STEP thành native parametric feature history; ghi Revision, units, datum, fixture/setup Version, nguồn MAIN Version và báo cáo kiểm chứng. Tên file có ID/revision nhất quán, không dùng `final2`.
 
-Không đặt tên:
-
-```text
-final
-final2
-final_real
-final_real_last
-```
-
-Dùng version rõ:
-
-```text
-fixture_v01.SLDASM
-fixture_v02.SLDASM
-```
-
-Ngoài SolidWorks source nên export:
-
-```text
-STEP
-DXF
-PDF drawing
-```
+**Kích thước:** kiểm quota, Git LFS và kích thước file *trước khi thêm* .step/.stp/.stl/.pdf/.dxf vào LFS; chưa có policy tự động cho các định dạng này. Không commit cache mô phỏng lớn, CAD trial, raw dataset hoặc secret.
 
 ---
 
@@ -752,7 +731,7 @@ Lưu:
 ```text
 simulations/matlab/
 simulations/ansys/
-simulations/solidworks_motion/
+simulations/solidworks_motion/   # legacy history only
 ```
 
 Ưu tiên commit:
@@ -1012,34 +991,21 @@ feature/ee2-adxl345-fifo → dev
 
 ---
 
-# 23. VÍ DỤ CHO ME1
+# 23. VÍ DỤ CHO ME1 (Onshape-only cho thiết kế mới)
 
-Task:
-
-```text
-Fixture v0.1
-```
-
-Làm ở:
+**Ví dụ chỉ để hướng dẫn, không phải fixture đã nghiệm thu:** chuẩn bị bộ hồ sơ Fixture v0.1 với hai Onshape Document `CAD TEST` và `ME1_MAIN_CAD`, đánh giá privacy trước khi đưa thiết kế lên cloud, và chỉ xuất chính thức từ MAIN **immutable Version ID/URL** khi đã có decision.
 
 ```text
-hardware/mechanical/solidworks/
-hardware/mechanical/step/
-hardware/mechanical/fabrication/
-hardware/bom/
+hardware/mechanical/onshape/cad_registry.md
+hardware/mechanical/onshape/release_manifest_template.md
+hardware/mechanical/reports/TEST_REPORT_TEMPLATE.md
+hardware/mechanical/step/              # versioned export thật khi có
+hardware/mechanical/dxf/               # nếu cần
+hardware/mechanical/fabrication/       # release thật với manifest và human review
+hardware/bom/MECHANICAL_BOM_TEMPLATE.csv
 ```
 
-Branch:
-
-```text
-feature/me1-fixture-v01
-```
-
-Commit:
-
-```text
-feat(mechanical): add fixture v0.1 design
-```
+Branch ví dụ `feature/me1-fixture-v01`; stage đúng file sau khi kiểm diff, human commit/push rồi PR `dev`. Không tạo mẫu STEP/Drawing/BOM giả, không tự tuyên bố FEA/hardware PASS. `solidworks/` giữ nguyên là **LEGACY/READ-ONLY**. Tài liệu nguồn: `docs/project_management/NCKH_ME1_ONSHAPE_CAD_GITHUB_WORKFLOW_REQUIREMENTS_V2.md`.
 
 ---
 
