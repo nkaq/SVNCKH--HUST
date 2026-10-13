@@ -256,10 +256,11 @@ hardware/
 
 Registry gồm phần đầu mô tả Onshape account/document và bảng ánh xạ ít nhất:
 
-| `component_id` | `release_id` | `engineering_rev` | `onshape_document_id` | `onshape_version_id` | `onshape_version_url` | `onshape_element_id` | `state` | `owner` | `drawing_path` | `bom_path` | `report_path` | `manifest_path` | `supersedes` |
+| `component_id` | `release_id` | `engineering_rev` | `onshape_document_id` | `onshape_version_id` | `onshape_version_url` | `onshape_element_id` | `state` | `owner` | `drawing_path` | `bom_path` | `report_path` | `manifest_path` | `supersedes` | `superseded_by` |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| `<ID_THẬT>` | `<R...>` | `<R...>` | `<DID>` | `<VID>` | `<URL version>` | `<EID nếu cần>` | `DRAFT/UNDER_REVIEW/APPROVED/RELEASED/...` | `ME1` | `<PATH>` | `<PATH>` | `<PATH>` | `<PATH>` | `<OLD_REV/NONE>` |
+| `<ID_THẬT>` | `<RELEASE_ID_THẬT>` | `<ENGINEERING_REV_THẬT>` | `<DID>` | `<VID>` | `<URL version>` | `<EID nếu cần>` | `DRAFT/UNDER_REVIEW/APPROVED/RELEASED/...` | `ME1` | `<PATH>` | `<PATH>` | `<PATH>` | `<PATH>` | `<SUPERSEDED_RELEASE_ID/NONE>` | `<REPLACING_RELEASE_ID/NONE>` |
 
+`release_id`, `engineering_rev` và `supersedes/superseded_by` không được đồng nhất: cả hai quan hệ thay thế nhận Release ID, không phải revision; một engineering revision có thể thuộc nhiều package khác nhau. Row lịch sử được giữ ở state `SUPERSEDED` khi release mới được phê duyệt. Không dùng tên Onshape Version làm engineering Revision.
 Bảng trên là **schema minh họa**, **không phải registry đã có dữ liệu**. Không đưa thông tin nhạy cảm/access token vào registry; URL của Document private vẫn cần ACL phù hợp.
 
 Tách riêng `document_url`, `workspace_url`, `version_url` nếu cần quản lý nhiều môi trường; **tuyệt đối không dùng workspace URL ở trường version_url**. Nếu link phiên bản Onshape có thay đổi cú pháp, lấy link bằng chức năng copy/share trong UI thực, không tự chế URL.
