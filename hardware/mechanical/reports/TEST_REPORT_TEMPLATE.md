@@ -11,8 +11,9 @@
 - **Evidence snapshot / Git commit SHA / approval reference for this report revision:** PENDING (record actual SHA and decision when available)
 - Component/assembly ID, revision, role: PENDING
 - Fixture version / setup version: PENDING
-- CAD TEST: Document ID, Version ID/URL and test evidence: PENDING / NOT_APPLICABLE
-- MAIN CAD: **Document ID + immutable Version ID + Version URL:** PENDING
+- CAD TEST: Document ID, **Element ID + element/part/assembly identifier**, fixed Version ID/URL and evidence: PENDING / NOT_APPLICABLE
+- MAIN CAD: **Document ID + immutable Version ID + Version URL + Onshape Element ID / corresponding version-element URL:** PENDING
+- Cross-check the exact element/part/assembly against `cad_registry.md` and release manifest; one MAIN Version may include multiple Elements; no geometry claim with only Document/Version ID.
 - Source Python/script commit/parameters ↔ STEP (if generated): NOT_APPLICABLE / PENDING
 - Drawing ID/revision/path, STEP/DXF, BOM path: PENDING
 - Release ID / release manifest relative path: PENDING
