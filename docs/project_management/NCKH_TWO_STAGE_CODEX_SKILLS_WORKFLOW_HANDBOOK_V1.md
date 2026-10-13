@@ -891,7 +891,7 @@ Yêu cầu vận hành nội bộ trước merge:
 
 **Nơi:** `hardware/mechanical/`, `docs/architecture/`, `experiments/protocols/`, phối hợp `hardware/bom/`.
 
-- Phiên bản fixture/drawing/BOM, consistency STEP/DXF/SolidWorks, sensor position/mounting repeatability, alignment, fault mechanism và guarding.
+- **Onshape là CAD native duy nhất cho thiết kế ME1 mới**, với CAD TEST tách khỏi ME1_MAIN_CAD; chỉ MAIN immutable Version ID/URL làm baseline. Giữ SolidWorks legacy, không tạo/di chuyển/xóa file cũ. Kiểm fixture/drawing/BOM/STEP/DXF cùng engineering Revision/Release ID, vị trí ADXL345, alignment, fault mechanism và guarding; đối chiếu registry/manifest/test report.
 - Ground Truth phải truy xuất về controlled physical condition, operator/protocol/recording metadata; đổi fixture/setup sau freeze phải ghi version/domain.
 - AI không tự xác nhận an toàn cơ khí hay acceptance fixture chỉ dựa vào mô tả/file CAD nhị phân; cần ME1/human fabrication review và thực nghiệm.
 
@@ -1186,17 +1186,24 @@ Không tự khẳng định điện an toàn, không thay pinout khi EE2 chưa �
 READ-ONLY; chỉ đề xuất sửa cùng yêu cầu bench/human gate.
 ```
 
-### P21 — ME1: CAD, fixture, protocol và architecture (REVIEW)
+### P21 — ME1: Onshape CAD, fixture, protocol và architecture (READ-ONLY REVIEW)
 
 ```text
-Tôi là ME1; rà soát <DOC_CAD_PATHS> theo current approved architecture.
-Kiểm BOM/drawing/assembly version, mounting repeatability,
-shaft/coupling clearances, guarding, experiment protocol,
-recording condition và fixture/setup version traceability.
-Nêu giới hạn vì SolidWorks binary không thể review đầy đủ bằng text.
-Không thay đổi fault mechanism, physical label hoặc công bố fixture PASS.
-Kết luận NEEDS HUMAN CAD/FABRICATION REVIEW cho phần phải kiểm tra thực tế.
-Không sửa file hoặc tạo approved evidence giả.
+Tôi là ME1. Rà tài liệu/registry/exports/report trong <ME1_PATHS>.
+Đọc root AGENTS.md, hardware/mechanical/AGENTS.md và
+NCKH_ME1_ONSHAPE_CAD_GITHUB_WORKFLOW_REQUIREMENTS_V2.md.
+Với CAD mới, Onshape CAD TEST khác ME1_MAIN_CAD:
+- xác minh privacy, chủ Document/reviewer access; nếu chưa có: PENDING/BLOCKED;
+- chỉ dùng MAIN immutable Version ID/URL cho release, không dùng Workspace URL;
+- kiểm Part/Assembly ID, engineering Revision, fixture/setup Version, datum/axis,
+  ADXL345 orientation, mating/clearance, Drawing/STEP/BOM/manifest/report backlink;
+- đối chiếu source Python+params (nếu thật có) với STEP/version và export units;
+- chọn static/modal/dynamic/fatigue/bench tests theo rủi ro, solver có thật.
+Modal không xác nhận forced response. Không tạo FEA/hardware/safety PASS giả.
+Không sửa SolidWorks LEGACY, Ground Truth hoặc dataset inclusion; nếu cần
+đổi fixture/fault protocol, nêu Human Gate và owner dependency.
+READ-ONLY: báo finding có chứng cứ file:dòng, NOT_RUN/BLOCKED và
+NEEDS HUMAN CAD/FABRICATION REVIEW; không sửa file hoặc Git.
 ```
 
 ### P22 — Sửa finding từ GitHub Codex Review (READ-ONLY rồi EDIT khi duyệt)
