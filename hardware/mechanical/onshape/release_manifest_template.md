@@ -17,14 +17,17 @@
 
 ## Exported artifact inventory (populate with files that actually exist)
 
-| Type | Component ID | Engineering Rev | Repo path | Exported from MAIN Version ID | Export units/settings | Exported by (account) | Exported at (ISO 8601 + timezone) | File size bytes | SHA256 (if actually calculated) | Verification/evidence |
-|---|---|---|---|---|---|---|---|---|---|---|
-| STEP (if required) | | | | | | | | | | |
-| Drawing PDF (fabricated parts) | | | | | | | | | | |
-| BOM CSV (assemblies) | | | | | | | | | | |
-| DXF (if required) | | | | | | | | | | |
-| STL/PNG (optional) | | | | | | | | | | |
-| CAD Python script + parameters (if generated) | | | | | | | | | | |
+| Type | Component ID | Engineering Rev | Source MAIN Onshape Element ID | Immutable MAIN Version + Element URL | Source Part/Assembly/feature ID | Repo path | Export MAIN Version ID | Export units/settings | Exported by (account) | Exported at (ISO 8601 + timezone) | File size bytes | SHA256 (if actually calculated) | Verification/evidence |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| STEP (if required) |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| Drawing PDF (fabricated parts) |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| BOM CSV (assemblies) |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| DXF (if required) |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| STL/PNG (optional) |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| CAD Python script + parameters (if generated) |  |  |  |  |  |  |  |  |  |  |  |  |  |
+
+**Per-artifact source binding:** mỗi hàng phải có **Element ID** và **đường dẫn bất biến tới đúng Version + Element** (hoặc `N/A + lý do` cho BOM/script không sinh trực tiếp từ Element). Đồng thời ghi Part/Assembly/feature/instance ID đúng output nguồn khi một Element chứa nhiều đối tượng. `Document ID + Version ID` chung là **không đủ** để phân biệt hai STEP hoặc Drawing xuất từ hai Element khác nhau.
+Đối chiếu từng hàng với `hardware/mechanical/onshape/cad_registry.md`, Drawing/BOM, file xuất thực tế, SHA256, export settings, người xuất và thời điểm xuất. Nếu Version có nhiều Element, hai hàng artifact khác nhau phải truy ngược được nguồn riêng; không được copy Version URL chung thay cho Element URL.
 
 Không tạo artifact chỉ để điền bảng. SHA256 là chứng cứ file *không đổi*, không chứng minh đúng hình học/đạt an toàn. Không dùng STEP/STL thay feature history của Onshape.
 
