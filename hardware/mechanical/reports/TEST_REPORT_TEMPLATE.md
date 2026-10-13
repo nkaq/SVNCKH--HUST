@@ -8,7 +8,10 @@
 - **Report revision:** PENDING (revision controlled; do not infer from component Rev)
 - **Report date/time:** PENDING — ISO 8601 with UTC offset/timezone
 - **Lifecycle state:** DRAFT / UNDER_REVIEW / APPROVED / RELEASED / BLOCKED — **DRAFT by default**, not approved
-- **Evidence snapshot / Git commit SHA / approval reference for this report revision:** PENDING (record actual SHA and decision when available)
+- **evidence_source_commit (optional):** PENDING — SHA of a previously existing source/evidence commit, when relevant. Only record a commit that already exists; this is **not** the SHA of the commit containing this report.
+- **Report revision commit / exact blob identity:** **EXTERNAL REFERENCE ONLY** — store the final immutable ref identifying these report bytes in the release manifest, approved PR, GitHub release/tag, or controlled decision record **outside this report**. Do not edit this report to insert its own commit SHA; doing so changes its bytes and creates a self-referential cycle.
+- **Human report approval decision reference:** PENDING — independently traceable PR/comment/minutes; never infer approval from CI or a placeholder.
+- **Verification:** checkout the externally recorded report revision ref and inspect this report's `report_revision`, status, source evidence refs and actual bytes. If report text later changes, record a new report revision and new external reference; do not rewrite an approved report.
 - Component/assembly ID, revision, role: PENDING
 - Fixture version / setup version: PENDING
 - CAD TEST: Document ID, **Element ID + element/part/assembly identifier**, fixed Version ID/URL and evidence: PENDING / NOT_APPLICABLE
