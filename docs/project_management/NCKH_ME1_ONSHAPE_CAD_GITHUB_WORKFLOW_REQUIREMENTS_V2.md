@@ -421,7 +421,13 @@ MAIN: DRAFT -> UNDER_REVIEW -> APPROVED -> RELEASED -> SUPERSEDED
 
 ### 8.1. Hiện trạng `.gitattributes` / `.gitignore`
 
-Snapshot đã kiểm tra trên `dev`: `.gitattributes` có LFS cho `*.SLDPRT`, `*.SLDASM`, `*.SLDDRW`, `*.pptx`, `*.psd`; `.png`, `.jpg`, `.jpeg`, `.pdf` được đánh dấu binary; **không thấy LFS rule cho `*.step`, `*.stp`, `*.stl`, `*.pdf`, `*.dxf`**. `.gitignore` có nhiều quy tắc cache/temporary/SolidWorks và raw data. Đây là **bằng chứng cần kiểm lại trên HEAD mới nhất**, không phải chỉ đạo tự thêm LFS.
+Snapshot đã kiểm tra trên `dev`: `.gitattributes` có LFS cho `*.SLDPRT`, `*.SLDASM`, `*.SLDDRW`, `*.pptx`, `*.psd`; `.png`, `.jpg`, `.jpeg`, `.pdf` được đánh dấu binary; **không thấy LFS rule cho `*.step`, `*.stp`, `*.stl`, `*.pdf`, `*.dxf`**. Root `.gitattributes` còn dùng **`* text=auto eol=lf`**; ASCII STEP/STL và DXF có thể bị Git chuẩn hóa newline/byte khi add/checkout nếu thiếu scoped binary override, dù file vẫn mở được trong CAD. `.gitignore` có nhiều quy tắc cache/temporary/SolidWorks và raw data. Đây là **bằng chứng cần kiểm lại trên HEAD mới nhất**, không phải chỉ đạo tự thêm LFS.
+
+### 8.1.1. BYTE-INTEGRITY GATE cho STEP/STL/DXF (chưa triển khai config trong PR này)
+
+**BLOCKED — CAD EXPORT BYTE INTEGRITY** trước fabrication release nếu file STEP/STP, STL (kể cả ASCII), DXF hoặc binary khác bị quy tắc `* text=auto eol=lf` tự động chuẩn hóa byte. SHA256 tính lúc export có thể khác SHA sau Git checkout. LFS-vs-normal-Git là một quyết định **khác** với text-vs-binary. Bắt buộc ME1 duyệt **PR cấu hình riêng** cho scoped `-text`/binary attributes phù hợp (.step/.stp/.stl/.dxf, và formats khác có căn cứ) **trước khi commit export làm release**; đây là file `.gitattributes` **ngoài danh sách 16 file đã duyệt**, nên không tự sửa trong PR tài liệu này.
+
+Kiểm chứng bắt buộc khi cấu hình được phép: `git check-attr -a -- <ACTUAL_EXPORT_PATH>`, SHA256 của export gốc → add/commit/checkout trên môi trường thực (Windows/Linux nếu nhóm dùng) → compare SHA256 byte-for-byte, xác nhận đúng định dạng/units và reviewer. Không tạo sample CAD giả để tuyên bố PASS. Đến lúc có bằng chứng, ghi `NOT_RUN/BLOCKED` và không coi artifact chưa chắc byte-identical là fabrication release.
 
 ### 8.2. Cách quyết định file gì nên đưa lên Git
 
