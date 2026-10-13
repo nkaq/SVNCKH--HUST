@@ -39,7 +39,11 @@ Không tạo artifact chỉ để điền bảng. SHA256 là chứng cứ file *
 - Risk/acceptance criterion references: PENDING
 - Unresolved limitations, `BLOCKED` items, mitigation: PENDING
 - Human reviewer, CAD/safety decision + reference: PENDING
-- PR URL, Git commit SHA after merge: PENDING
+- Source PR URL / human decision record: PENDING — external GitHub record, not evidence of CAD safety
+- **artifact_source_commit:** PENDING — immutable commit containing **artifact bytes/exports** whose SHA256 is checked in this manifest
+- **release_metadata_commit:** **EXTERNAL REFERENCE ONLY** — identify the Git commit holding the final manifest via the merged PR, immutable tag or GitHub Release metadata **outside this manifest**. Do not write the SHA of the commit containing this file into the same file (self-referential cycle).
+- Release metadata decision/tag URL (external reference, after human release approval): PENDING
+- Verification: checkout `artifact_source_commit` to validate exported files and SHA256; then resolve external release metadata ref and compare manifest/report/approval. If data is updated later, create a new controlled metadata revision rather than rewriting history.
 - Status: **PROPOSED** (no approval or release implied)
 - Supersedes/rollback reference: NONE / PENDING
 
