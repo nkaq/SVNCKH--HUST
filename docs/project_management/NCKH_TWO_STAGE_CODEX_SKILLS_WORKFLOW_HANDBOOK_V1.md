@@ -1,6 +1,6 @@
 # NCKH — CẨM NANG CODE, CODEX SKILLS & TWO-STAGE AI CODE REVIEW
 
-**Phiên bản:** V1.1 (bản sửa sau Codex Review PR #19) — 12/10/2026  
+**Phiên bản:** V1.2 (bổ sung workflow CAD Onshape cho ME1, PR #20) — 13/10/2026  
 **Dự án:** *Adaptive Multimodal TinyML for Drift-Robust Predictive Maintenance on Resource-Constrained Edge Microcontrollers*  
 **Repository chính:** <https://github.com/nkaq/SVNCKH--HUST>  
 **Đối tượng:** ME1, MS2, EE2, ET1, IT2; ưu tiên người trực tiếp viết code (EE2, IT2, MS2 và các phần code liên quan ET1/ME1).  
@@ -11,7 +11,7 @@
 >
 > **Nguyên tắc không thương lượng:** Thành viên viết/duyệt code; Codex được phép phân tích, sửa file theo phạm vi đã duyệt và chạy test; **người thật tự `git add`, `git commit`, `git push`, mở PR và quyết định merge**. AI không phê duyệt thay Human Gate.
 >
-> **Trạng thái triển khai V1.1:** Đây là tài liệu *đề xuất*. PR #19, bản ghi Project Update mức B và dòng `CHANGELOG.md` chỉ cung cấp nguồn truy vết; **không** đồng nghĩa ME1 đã phê duyệt, các thành viên đã ACK hoặc workflow đã `ACTIVE`. Chỉ được áp dụng bắt buộc toàn nhóm sau khi PR được review/merge, ME1 cấp Update ID, công bố ngày/điều kiện hiệu lực và thu đủ xác nhận `READY/BLOCKED` phù hợp. Trước đó dùng chuẩn hiện hành trong `AGENTS.md` và `CODEX_REVIEW_WORKFLOW.md`.
+> **Trạng thái triển khai two-stage V1.1/V1.2:** Đây là tài liệu *đề xuất*. PR #19, bản ghi Project Update mức B và dòng `CHANGELOG.md` chỉ cung cấp nguồn truy vết; **không** đồng nghĩa ME1 đã phê duyệt, các thành viên đã ACK hoặc workflow đã `ACTIVE`. Chỉ được áp dụng bắt buộc toàn nhóm sau khi PR được review/merge, ME1 cấp Update ID, công bố ngày/điều kiện hiệu lực và thu đủ xác nhận `READY/BLOCKED` phù hợp. Trước đó dùng chuẩn hiện hành trong `AGENTS.md` và `CODEX_REVIEW_WORKFLOW.md`.
 
 ---
 
@@ -2005,7 +2005,7 @@ Không bắt Codex chạy **mọi** Skill cho **mọi** prompt: routing phải l
 
 ### 17.2. Quy trình bảo trì tài liệu này
 
-- **Owner nội dung:** ME1 phối hợp EE2/IT2/MS2/ET1 khi cập nhật nội dung chuyên môn. **Trạng thái V1.1:** PROPOSED; ghi nhận ở `docs/project_management/NCKH_TWO_STAGE_CODEX_WORKFLOW_PROJECT_UPDATE_PROPOSAL_V1.md` và mục Unreleased của `CHANGELOG.md`; chưa tự ACTIVE.
+- **Owner nội dung:** ME1 phối hợp EE2/IT2/MS2/ET1 khi cập nhật nội dung chuyên môn. **Trạng thái V1.2:** PROPOSED; ghi nhận ở `docs/project_management/NCKH_TWO_STAGE_CODEX_WORKFLOW_PROJECT_UPDATE_PROPOSAL_V1.md` và mục Unreleased của `CHANGELOG.md`; chưa tự ACTIVE.
 - **Nơi khuyến nghị đưa vào repo (sau khi human duyệt):** `docs/project_management/NCKH_TWO_STAGE_CODEX_SKILLS_WORKFLOW_HANDBOOK_V1.md` qua **feature branch và PR**, không copy đè trực tiếp `dev`.
 - **Trước PR:** cross-check lại `AGENTS.md`, README task tuần hiện hành, CI/ruleset, review trigger, Skills thực cài, source logs và CODEOWNERS.
 - **Khi cập nhật:** tăng version, mô tả scope thay đổi, mốc hiệu lực, owner review; thông báo `[PROJECT UPDATE]` nếu thay đổi quy trình cả nhóm.
@@ -2016,6 +2016,7 @@ Không bắt Codex chạy **mọi** Skill cho **mọi** prompt: routing phải l
 |---|---|---|
 | V1.0 | 2026-10-12 | Cẩm nang hợp nhất local Codex Skills + GitHub Codex Review, lệnh Git/PowerShell, 41 mẫu prompt (P01–P40, trong đó P03 có 2 pha), 76 tình huống, bảng xử lý lỗi, checklist và ngưỡng Human Gate |
 | V1.1 (PROPOSED) | 2026-10-12 | Sửa 5 finding PR #19: thay tham chiếu ngoài repo, phân nguồn task theo PR template, Project Update mức B/CHANGELOG với trạng thái đề xuất, khóa CLI + Git commit của Skills và cảnh báo redact terminal credentials; đợi human review/ACK trước ACTIVE |
+| V1.2 (ME1 CAD migration PROPOSED) | 2026-10-13 | Đổi phần ME1 và prompt P21 từ legacy SolidWorks sang Onshape-only cho CAD mới: tách CAD TEST/ME1_MAIN_CAD, immutable MAIN Version, registry, BOM/report/manifest, privacy gate, giữ legacy. PR #20 / yêu cầu V2; không tuyên bố team rollout ACTIVE hoặc CAD/safety nghiệm thu. |
 
 ---
 
