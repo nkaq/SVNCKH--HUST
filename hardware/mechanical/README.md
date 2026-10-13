@@ -2,6 +2,10 @@
 
 **Owner:** ME1 (`@nkaq`). **Current tool for all new mechanical CAD:** **Onshape** (Part Studio, Assembly, Drawing, controlled Versions). **No new SolidWorks design**. Existing `solidworks/` files/directories are **LEGACY/READ-ONLY** for historical traceability; preserve their paths, including older exports. This document does **not** certify an actual fixture design or safety.
 
+## Status and conflict with current weekly assignment
+
+**ME1 đã chọn Onshape cho thiết kế mới**, nhưng chuẩn bàn giao Onshape cho toàn nhóm vẫn **PROPOSED — NOT ACTIVE** cho đến khi ME1 cấp Project Update ID, phê duyệt nội dung thay đổi các nguồn task đang ACTIVE, công bố mốc hiệu lực và xử lý ACK/compatibility. Đặc biệt `docs/plans/week03/README.md` vẫn có task “Fixture + SolidWorks” và `NCKH_TEAM_SUBMISSION_WORKFLOW_V3.md` còn yêu cầu file `.SLD*`; **không tự sửa hồ sơ tuần lịch sử trong PR này** và **không bắt thành viên tự làm SolidWorks hoặc tự đổi deliverable sang Onshape khi nhiệm vụ đang ACTIVE mâu thuẫn**. Đánh dấu task liên quan `BLOCKED — SOURCE CONFLICT`, yêu cầu ME1 quyết định và cấp Project Update/task source hợp lệ. Bộ tài liệu mới sẵn sàng để áp dụng khi gate hoàn tất.
+
 ## Separate CAD environments
 
 - **CAD TEST:** separate Onshape Document for exploratory parts, assemblies, text-to-cad Python/STEP trials, geometry checks and provisional simulations. State `DRAFT / UNDER_REVIEW / TESTED / REJECTED`, **never RELEASED**. TEST artifacts do not belong in a fabrication release.
