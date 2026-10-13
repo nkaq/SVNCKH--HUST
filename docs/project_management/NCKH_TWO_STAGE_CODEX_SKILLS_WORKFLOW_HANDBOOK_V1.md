@@ -11,7 +11,7 @@
 >
 > **Nguyên tắc không thương lượng:** Thành viên viết/duyệt code; Codex được phép phân tích, sửa file theo phạm vi đã duyệt và chạy test; **người thật tự `git add`, `git commit`, `git push`, mở PR và quyết định merge**. AI không phê duyệt thay Human Gate.
 >
-> **Trạng thái triển khai two-stage V1.1/V1.2:** Đây là tài liệu *đề xuất*. PR #19, bản ghi Project Update mức B và dòng `CHANGELOG.md` chỉ cung cấp nguồn truy vết; **không** đồng nghĩa ME1 đã phê duyệt, các thành viên đã ACK hoặc workflow đã `ACTIVE`. Chỉ được áp dụng bắt buộc toàn nhóm sau khi PR được review/merge, ME1 cấp Update ID, công bố ngày/điều kiện hiệu lực và thu đủ xác nhận `READY/BLOCKED` phù hợp. Trước đó dùng chuẩn hiện hành trong `AGENTS.md` và `CODEX_REVIEW_WORKFLOW.md`.
+> **Trạng thái triển khai được theo dõi RIÊNG theo phiên bản:** **V1.1 (Two-Stage Codex Skills, PR #19)** có hồ sơ [`NCKH_TWO_STAGE_CODEX_WORKFLOW_PROJECT_UPDATE_PROPOSAL_V1.md`](NCKH_TWO_STAGE_CODEX_WORKFLOW_PROJECT_UPDATE_PROPOSAL_V1.md). **V1.2 (ME1 Onshape CAD migration, PR #20)** có hồ sơ [`NCKH_ME1_ONSHAPE_PROJECT_UPDATE_PROPOSAL_V1.md`](NCKH_ME1_ONSHAPE_PROJECT_UPDATE_PROPOSAL_V1.md) với scope CAD, owner, blockers, ngày hiệu lực và ACK độc lập. Hai hồ sơ đều có trạng thái **PROPOSED**, chưa đồng nghĩa các thành viên đã ACK hoặc workflow đã `ACTIVE`. Chỉ áp dụng bắt buộc phần tương ứng sau khi đủ review/human decision, merge, ME1 cấp Update ID, công bố ngày/điều kiện hiệu lực và kiểm tra `READY/BLOCKED` phù hợp. Trước đó dùng chuẩn hiện hành trong `AGENTS.md`, `CODEX_REVIEW_WORKFLOW.md` và README nhiệm vụ tuần đang ACTIVE; nếu mâu thuẫn về CAD, dừng task bị ảnh hưởng để ME1 giải quyết nguồn task.
 
 ---
 
@@ -2005,7 +2005,7 @@ Không bắt Codex chạy **mọi** Skill cho **mọi** prompt: routing phải l
 
 ### 17.2. Quy trình bảo trì tài liệu này
 
-- **Owner nội dung:** ME1 phối hợp EE2/IT2/MS2/ET1 khi cập nhật nội dung chuyên môn. **Trạng thái V1.2:** PROPOSED; ghi nhận ở `docs/project_management/NCKH_TWO_STAGE_CODEX_WORKFLOW_PROJECT_UPDATE_PROPOSAL_V1.md` và mục Unreleased của `CHANGELOG.md`; chưa tự ACTIVE.
+- **Owner nội dung:** ME1 phối hợp EE2/IT2/MS2/ET1 khi cập nhật nội dung chuyên môn. **Trạng thái V1.2 (ME1 Onshape migration):** PROPOSED; ghi nhận tại [`NCKH_ME1_ONSHAPE_PROJECT_UPDATE_PROPOSAL_V1.md`](NCKH_ME1_ONSHAPE_PROJECT_UPDATE_PROPOSAL_V1.md) và mục Unreleased của `CHANGELOG.md`; chưa tự ACTIVE. **V1.1 Two-Stage Skills** có hồ sơ khác tại [`NCKH_TWO_STAGE_CODEX_WORKFLOW_PROJECT_UPDATE_PROPOSAL_V1.md`](NCKH_TWO_STAGE_CODEX_WORKFLOW_PROJECT_UPDATE_PROPOSAL_V1.md). Không dùng hồ sơ V1.1 làm bằng chứng phê duyệt V1.2.
 - **Nơi khuyến nghị đưa vào repo (sau khi human duyệt):** `docs/project_management/NCKH_TWO_STAGE_CODEX_SKILLS_WORKFLOW_HANDBOOK_V1.md` qua **feature branch và PR**, không copy đè trực tiếp `dev`.
 - **Trước PR:** cross-check lại `AGENTS.md`, README task tuần hiện hành, CI/ruleset, review trigger, Skills thực cài, source logs và CODEOWNERS.
 - **Khi cập nhật:** tăng version, mô tả scope thay đổi, mốc hiệu lực, owner review; thông báo `[PROJECT UPDATE]` nếu thay đổi quy trình cả nhóm.
