@@ -18,8 +18,19 @@
 - MAIN CAD: **Document ID + immutable Version ID + Version URL + Onshape Element ID / corresponding version-element URL:** PENDING
 - Cross-check the exact element/part/assembly against `cad_registry.md` and release manifest; one MAIN Version may include multiple Elements; no geometry claim with only Document/Version ID.
 - Source Python/script commit/parameters ↔ STEP (if generated): NOT_APPLICABLE / PENDING
-- Drawing ID/revision/path, STEP/DXF, BOM path: PENDING
+- Drawing ID/revision/path, STEP/DXF, BOM path: PENDING — mỗi file phải được gắn với một hàng inventory xác định ở bên dưới, không chỉ trỏ tới tên file.
 - Release ID / release manifest relative path: PENDING
+- **Exact manifest inventory reference:** PENDING — ghi `release_id`, path + manifest revision/immutable external metadata ref và hàng inventory tương ứng cho từng artifact được dùng kiểm chứng. Không chỉ dùng MAIN Version ID vì cùng Version có thể có nhiều export settings khác nhau.
+- **Verified export settings, units and provenance:** Chỉ điền từ lần export **có thật**; đối chiếu `exported_by`, `exported_at` (ISO 8601 có timezone), format/format version, options, units, byte count và SHA256 với manifest. Nếu thiếu thì để `PENDING/NOT_RUN`, không suy đoán.
+
+| Artifact/role | Exact repo path | MAIN Version ID + Onshape Element ID | Format & export options (e.g. STEP AP242, DXF drawing settings) | Export units | Exported by | Exported at (ISO 8601 offset) | Size bytes | SHA256 if measured | Manifest row / verification |
+|---|---|---|---|---|---|---|---|---|---|
+| STEP | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | NOT_RUN |
+| Drawing PDF | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | NOT_RUN |
+| DXF (if applicable) | N/A | N/A | N/A | N/A | N/A | N/A | N/A | N/A | N/A |
+| BOM (if applicable) | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | NOT_RUN |
+
+**Ví dụ phân biệt (không phải export thật):** hai STEP xuất từ cùng một MAIN Version nhưng units khác nhau phải có các hàng provenance/settings và SHA256 riêng, không dùng chung một ô `PASS`. Chỉ nghiệm thu bản export có evidence đối chiếu manifest đúng phiên bản.
 - Units, part coordinate system, axis/datum/alignment, ADXL345 XYZ mount frame: PENDING
 - Material/process/physical dimensions, approved tolerance standard: PENDING
 
