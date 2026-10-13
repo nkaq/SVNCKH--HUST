@@ -21,7 +21,7 @@ Repository này là **bộ nhớ kỹ thuật/version-control chính thức củ
 - firmware;
 - dashboard;
 - ML/TinyML;
-- Onshape native CAD for new ME1 designs (SolidWorks files retained as LEGACY only);
+- **GitHub references/registry to Onshape native CAD** for new ME1 designs (native parametric Part Studio/Assembly/feature history lives **only in Onshape cloud**, not in Git; SolidWorks historical files remain LEGACY);
 - sơ đồ điện;
 - mô phỏng;
 - ảnh;
@@ -251,7 +251,7 @@ docs/plans/
 ME1 đưa vào repo:
 
 ```text
-Onshape CAD TEST (thử nghiệm) và ME1_MAIN_CAD (source CAD native mới)
+Registry/reference cho Onshape CAD TEST và ME1_MAIN_CAD (native source nằm trên Onshape, Git chỉ lưu ID/URL)
 MAIN immutable Version ID + Version URL (không phải Workspace URL)
 Onshape CAD Registry và release manifest template
 STEP và Drawing PDF từ MAIN Version cố định khi có release thực
@@ -714,7 +714,7 @@ Mọi box chat phải giữ quy tắc này khi hướng dẫn thành viên lưu 
 
 # 14. ONSHAPE CAD / LEGACY SOLIDWORKS / FILE BINARY
 
-**Thiết kế cơ khí mới:** Onshape native ở Document `ME1_MAIN_CAD` có **Version ID/URL cố định**. `CAD TEST` là Document riêng thử nghiệm; không coi TEST export/import đã qua engineering review. Trên GitHub, registry `hardware/mechanical/onshape/cad_registry.md` liên kết chính xác version, export, BOM, report và manifest; không commit Onshape token hoặc dữ liệu phải private lên cloud public.
+**Thiết kế cơ khí mới:** native parametric source nằm **trên Onshape cloud**, không phải trong Git; GitHub chỉ giữ registry/reference, source Python (nếu có), exports, BOM và báo cáo. Document `ME1_MAIN_CAD` cần **Version ID/URL cố định**. `CAD TEST` là Document riêng thử nghiệm; không coi TEST export/import đã qua engineering review. Trên GitHub, registry `hardware/mechanical/onshape/cad_registry.md` liên kết chính xác version, export, BOM, report và manifest; không commit Onshape token hoặc dữ liệu phải private lên cloud public.
 
 **Legacy:** `hardware/mechanical/solidworks/` và `simulations/solidworks_motion/` là READ-ONLY để truy vết; `.SLDPRT/.SLDASM/.SLDDRW` vẫn được `.gitattributes` dùng LFS trong repo, **không xóa rule cũ** và không tạo file mới dạng này.
 
