@@ -68,13 +68,15 @@ chỉ dùng cho:
 
 # 3. ME1 — SYSTEM ARCHITECTURE / MECHANICAL / INTEGRATION
 
+> **Từ nay ME1 dùng Onshape-only cho thiết kế CAD mới.** SolidWorks chỉ là `hardware/mechanical/solidworks/` **LEGACY/READ-ONLY**, không tạo dự án, file `.SLDPRT/.SLDASM/.SLDDRW` mới. Giữ lịch sử repository. Xem [ME1 Onshape V2](NCKH_ME1_ONSHAPE_CAD_GITHUB_WORKFLOW_REQUIREMENTS_V2.md).
+
 ## 3.1. Primary folders
 
 ```text
-hardware/mechanical/
+hardware/mechanical/      # mechanical native source tham chiếu qua Onshape Version
+hardware/bom/             # shared ME1 + ET1
 docs/architecture/
 experiments/protocols/
-hardware/bom/
 docs/plans/
 docs/reports/
 assets/system_images/
@@ -83,98 +85,52 @@ assets/diagrams/
 
 ## 3.2. Công việc chính
 
-ME1 chịu trách nhiệm chính cho:
+- Thiết kế fixture/gá motor/coupling/trục/gối đỡ/cơ cấu fault, vị trí gá ADXL345 và tương thích các sensor đã khóa.
+- **Onshape CAD TEST:** thử Part Studios, Assembly, Drawing, import STEP từ Python/text-to-cad, kiểm hình học/tải/Modal theo tool thực có; không coi TEST là release.
+- **Onshape ME1_MAIN_CAD:** nguồn Part/Assembly/Drawing tham số chính thức. ME1 review chuyển từ TEST và tạo **MAIN Version ID + URL cố định** trước mọi release.
+- Mỗi release liên kết CAD Registry ↔ release manifest ↔ STEP/Drawing/BOM ↔ test report/human decision ↔ Git PR.
+- Ground Truth protocol, fixture/setup versions, mechanical safety, integration và dependency với MS2/EE2/ET1/IT2; giữ Engineering Validation Data tách Dataset v0.1.
 
-- thiết kế fixture / gá motor;
-- SolidWorks parts / assembly / drawing;
-- sensor mounting reference;
-- coupling / load interface;
-- fixture acceptance;
-- system architecture;
-- experimental matrix;
-- Ground Truth Protocol;
-- physical fault definition;
-- integration giữa các subsystem;
-- BOM cơ khí / tổng thể;
-- version của fixture/setup.
+## 3.3. File types và nguồn chính
 
-## 3.3. Định dạng file ME1 thường dùng
+| Loại | Định dạng / nguồn | Vị trí |
+|---|---|---|
+| Native parametric CAD | **Onshape MAIN Document + immutable Version ID/URL** | `hardware/mechanical/onshape/cad_registry.md` |
+| Model trao đổi | `.STEP/.step/.stp` | `hardware/mechanical/step/` |
+| Drawing kỹ thuật | `.pdf` (PDF có kích thước/tolerance/datum/rev) | `hardware/mechanical/drawings/` (khi thật có) |
+| 2D machining | `.dxf` nếu cần | `hardware/mechanical/dxf/` |
+| Preview/prototyping | `.stl/.png` tùy chọn; không thay STEP/native history | `stl/`, `previews/` khi thật có |
+| Reproducible CAD scripting | `.py` + tham số/cấu hình, chỉ khi có script | `hardware/mechanical/cad-source/scripts/`, `params/` |
+| Release manifest / evidence | `.md`, `.csv`, `.pdf`, ảnh nhỏ | `onshape/release_manifest_template.md`, `fabrication/`, `reports/` |
+| BOM | `.csv`, Part ID/Rev/Qty/Material/Source | `hardware/bom/MECHANICAL_BOM_TEMPLATE.csv` |
+| Legacy native CAD | `.SLDPRT/.SLDASM/.SLDDRW` chỉ đọc | `hardware/mechanical/solidworks/` — không làm mới |
 
-### CAD source
-
-```text
-.SLDPRT
-.SLDASM
-.SLDDRW
-```
-
-### File trao đổi / fabrication
+## 3.4. Folder example / naming (đường dẫn thực hoặc template, không phải artifact đã tạo)
 
 ```text
-.STEP
-.STP
-.DXF
-.PDF
-```
-
-### Tài liệu / bảng
-
-```text
-.md
-.csv
-.xlsx
-.pdf
-```
-
-### Hình ảnh / sơ đồ
-
-```text
-.png
-.jpg
-.svg
-```
-
-## 3.4. Ví dụ vị trí file
-
-```text
-hardware/mechanical/solidworks/parts/motor_plate_v01.SLDPRT
-
-hardware/mechanical/solidworks/assemblies/
-fixture_v01.SLDASM
-
-hardware/mechanical/step/
-fixture_v01.step
-
-hardware/mechanical/dxf/
-motor_plate_v01.dxf
-
-hardware/bom/
-mechanical_bom_v01.csv
-
+hardware/mechanical/onshape/cad_registry.md
+hardware/mechanical/onshape/release_manifest_template.md
+hardware/mechanical/reports/TEST_REPORT_TEMPLATE.md
+hardware/mechanical/step/                       # đã có, xuất khi thật có
+hardware/mechanical/dxf/                        # đã có, khi thật cần
+hardware/mechanical/fabrication/                # đã có, versioned release sau kiểm chứng
+hardware/mechanical/drawings/                   # mới, chỉ tạo khi có PDF thật
+hardware/mechanical/cad-source/scripts/         # mới, chỉ tạo khi có script thật
+hardware/bom/MECHANICAL_BOM_TEMPLATE.csv
 docs/architecture/
-system_architecture_v03.md
-
 experiments/protocols/
-ground_truth_protocol_v01.md
 ```
+
+**Naming:** kỹ thuật phải có Component ID, engineering Rev, fixture/setup Version, Release ID và Onshape Version ID/URL **riêng biệt**; không suy Revision từ Onshape Version name. Trong ví dụ dạng `ME1_FIX_PLT_001_R01.step`, tên chỉ minh họa format chưa được ME1 khóa, không phải file có thật.
+
+**Safety/evidence:** đơn vị, trục XYZ, datum, ADXL345 mounting, tải/biên/RPM và acceptance là `PENDING/TBD` đến khi ME1 phê duyệt và có evidence. Linear Static/Modal không chứng nhận đáp ứng rung cưỡng bức hay an toàn khi chưa bench/human review. Kiểm gói Onshape/quyền riêng tư trước khi đưa CAD lên cloud.
 
 ## 3.5. Không đặt ở ME1
 
-Không đặt firmware chính tại:
-
-```text
-hardware/mechanical/
-```
-
-Không đặt ML model tại:
-
-```text
-docs/architecture/
-```
-
-Nếu ME1 viết code test tạm, phải chuyển về subsystem phù hợp trước khi merge.
+Không đặt firmware production trong `hardware/mechanical/`, ML model production tại `docs/architecture/`, hay CAD/STEP chính thức trong `members/ME1/`. Script Python CAD có thể do ME1 sở hữu vì thuộc cơ khí, không tự động thuộc IT2. Giao diện liên subsystem và an toàn cần owner chuyên môn xác nhận.
 
 ---
+
 
 # 4. MS2 — MEMS / ADXL345 / SENSOR HEALTH / DRIFT
 
@@ -822,7 +778,7 @@ Khuyến nghị:
 Ví dụ:
 
 ```text
-fixture_v01.SLDASM
+ME1_FIX_PLT_001_R01.step  # tên minh họa
 system_architecture_v03.md
 adxl345_repeatability_v01.csv
 sensor_interface_v01.pdf
@@ -856,8 +812,8 @@ v03
 Ví dụ:
 
 ```text
-fixture_v01.SLDASM
-fixture_v02.SLDASM
+ME1_FIX_PLT_001_R01.step
+ME1_FIX_PLT_001_R02.step
 ```
 
 Với code đã quản lý bằng Git, không cần tạo vô hạn:
@@ -883,16 +839,7 @@ model release
 
 # 12. GIT LFS / FILE LỚN
 
-Các file binary lớn như:
-
-```text
-.SLDPRT
-.SLDASM
-.SLDDRW
-.pptx
-```
-
-được quản lý theo Git LFS của repo.
+Các file binary **legacy** `.SLDPRT/.SLDASM/.SLDDRW` và `.pptx` đã có Git LFS theo `.gitattributes`; giữ nguyên rule lịch sử. Với STEP/STL/DXF/PDF **chưa tự thêm LFS**: kiểm kích thước, quota, tần suất export và thiết lập Git LFS trước. Không commit CAD TEST trial/cache/raw data lớn hay secret.
 
 Không commit raw dataset lớn vào GitHub.
 
@@ -940,7 +887,8 @@ IT2 → Data / AI / TinyML
 
 | Artifact | Owner chính | Folder |
 |---|---|---|
-| SolidWorks fixture | ME1 | `hardware/mechanical/solidworks/` |
+| Onshape MAIN Version + CAD Registry (new) | ME1 | `hardware/mechanical/onshape/` |
+| SolidWorks legacy CAD (read-only) | ME1 | `hardware/mechanical/solidworks/` |
 | STEP / DXF / fabrication | ME1 | `hardware/mechanical/` |
 | System Architecture | ME1 | `docs/architecture/` |
 | Ground Truth Protocol | ME1 | `experiments/protocols/` |
@@ -992,7 +940,7 @@ hardware/bom/
 File thường gặp:
 
 ```text
-.SLDPRT .SLDASM .SLDDRW .STEP .DXF .PDF .MD .CSV .PNG
+.STEP .STP .STL .DXF .PDF .MD .CSV .PNG .PY (new CAD); legacy .SLDPRT/.SLDASM/.SLDDRW chỉ đọc
 ```
 
 ---
