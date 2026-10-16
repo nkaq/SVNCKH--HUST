@@ -5,30 +5,12 @@
 #include "daq_types.h"
 
 
-// =====================================================
-// EE2 -> IT2 DATA CONTRACT v1.0
-//
-// Quy tắc:
-// - Metadata và footer bắt đầu bằng '#'
-// - Sample data là CSV thuần
-// - Không đổi thứ tự sample columns nếu chưa bump version
-// - Raw ADXL345 luôn được giữ lại
-// =====================================================
-
 namespace DataContract
 {
 
-// =====================================================
-// VERSION
-// =====================================================
 
 constexpr char CONTRACT_VERSION[] =
     "EE2_IT2_DC_v1.0";
-
-
-// =====================================================
-// FIXED SAMPLE SCHEMA
-// =====================================================
 
 constexpr char SAMPLE_FORMAT[] =
     "CSV";
@@ -36,29 +18,14 @@ constexpr char SAMPLE_FORMAT[] =
 constexpr char SAMPLE_COLUMNS[] =
     "sample_index,timestamp_us,x_raw,y_raw,z_raw,status_flags";
 
-
-// =====================================================
-// DATA SOURCE
-// =====================================================
-
 constexpr char SOURCE_MOCK[] =
     "MOCK";
 
 constexpr char SOURCE_HARDWARE[] =
     "HARDWARE";
 
-
-// =====================================================
-// TIMESTAMP CLOCK
-// =====================================================
-
 constexpr char TIMESTAMP_CLOCK[] =
     "ESP32_MONOTONIC_US";
-
-
-// =====================================================
-// TIMESTAMP SEMANTICS
-// =====================================================
 
 constexpr char TS_DATA_READY[] =
     "IRQ_TIMESTAMP_PROXY";
@@ -66,18 +33,8 @@ constexpr char TS_DATA_READY[] =
 constexpr char TS_FIFO[] =
     "RECONSTRUCTED_FROM_FIFO_IRQ_AND_ODR";
 
-
-// =====================================================
-// DEFAULT SENSOR ID
-// =====================================================
-
 constexpr char SENSOR_ID_ADXL345[] =
     "ADXL345";
-
-
-// =====================================================
-// RECORD METADATA
-// =====================================================
 
 struct RecordMetadata
 {
@@ -88,7 +45,7 @@ struct RecordMetadata
         "UNSET";
 
 
-    // MOCK hoặc HARDWARE
+
     const char* dataSource =
         "UNSET";
 
@@ -141,7 +98,7 @@ struct RecordMetadata
         0;
 
 
-    // Stress test fields.
+
     bool stressActive =
         false;
 
@@ -151,11 +108,6 @@ struct RecordMetadata
     uint16_t stressRunTotal =
         0;
 };
-
-
-// =====================================================
-// RECORD FOOTER
-// =====================================================
 
 struct RecordFooter
 {
@@ -214,11 +166,6 @@ struct RecordFooter
         "UNSET";
 };
 
-
-// =====================================================
-// PUBLIC FUNCTIONS
-// =====================================================
-
 const char* modeName(
     AcquisitionMode mode
 );
@@ -241,4 +188,4 @@ void printRecordFooter(
     const RecordFooter& footer
 );
 
-} // namespace DataContract
+} 

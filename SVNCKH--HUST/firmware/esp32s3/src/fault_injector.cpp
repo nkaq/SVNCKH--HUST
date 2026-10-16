@@ -1,9 +1,9 @@
 #include "fault_injector.h"
 
 
-// =====================================================
-// BEGIN
-// =====================================================
+
+
+
 
 void FaultInjector::begin()
 {
@@ -11,9 +11,9 @@ void FaultInjector::begin()
 }
 
 
-// =====================================================
-// RESET
-// =====================================================
+
+
+
 
 void FaultInjector::reset()
 {
@@ -36,9 +36,9 @@ void FaultInjector::reset()
 }
 
 
-// =====================================================
-// ARM
-// =====================================================
+
+
+
 
 void FaultInjector::arm(
     InjectedFault fault
@@ -69,9 +69,9 @@ void FaultInjector::arm(
 }
 
 
-// =====================================================
-// IS ARMED
-// =====================================================
+
+
+
 
 bool FaultInjector::isArmed(
     InjectedFault fault
@@ -101,9 +101,9 @@ bool FaultInjector::isArmed(
 }
 
 
-// =====================================================
-// CONSUME
-// =====================================================
+
+
+
 
 bool FaultInjector::consume(
     InjectedFault fault
@@ -141,9 +141,9 @@ bool FaultInjector::consume(
 }
 
 
-// =====================================================
-// DISCONNECT ACTIVE
-// =====================================================
+
+
+
 
 void FaultInjector::setDisconnectActive(
     bool active
@@ -177,9 +177,9 @@ void FaultInjector::setDisconnectActive(
 }
 
 
-// =====================================================
-// IS DISCONNECT ACTIVE
-// =====================================================
+
+
+
 
 bool FaultInjector::isDisconnectActive() const
 {
@@ -204,9 +204,9 @@ bool FaultInjector::isDisconnectActive() const
 }
 
 
-// =====================================================
-// GET PENDING FAULT
-// =====================================================
+
+
+
 
 InjectedFault FaultInjector::getPendingFault() const
 {
@@ -231,9 +231,9 @@ InjectedFault FaultInjector::getPendingFault() const
 }
 
 
-// =====================================================
-// FAULT NAME
-// =====================================================
+
+
+
 
 const char* FaultInjector::faultName(
     InjectedFault fault

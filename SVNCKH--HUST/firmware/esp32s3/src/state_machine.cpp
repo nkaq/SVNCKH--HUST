@@ -1,9 +1,9 @@
 #include "state_machine.h"
 
 
-// =====================================================
-// BEGIN
-// =====================================================
+
+
+
 
 void StateMachine::begin()
 {
@@ -12,9 +12,9 @@ void StateMachine::begin()
 }
 
 
-// =====================================================
-// GET STATE
-// =====================================================
+
+
+
 
 DaqState StateMachine::getState() const
 {
@@ -22,9 +22,9 @@ DaqState StateMachine::getState() const
 }
 
 
-// =====================================================
-// TRANSITION
-// =====================================================
+
+
+
 
 bool StateMachine::transitionTo(
     DaqState newState
@@ -49,9 +49,9 @@ bool StateMachine::transitionTo(
 }
 
 
-// =====================================================
-// TRANSITION RULES
-// =====================================================
+
+
+
 
 bool StateMachine::isTransitionAllowed(
     DaqState from,
@@ -60,9 +60,9 @@ bool StateMachine::isTransitionAllowed(
 {
     switch (from)
     {
-        // ---------------------------------------------
-        // INIT
-        // ---------------------------------------------
+
+
+
 
         case DaqState::INIT:
 
@@ -72,9 +72,9 @@ bool StateMachine::isTransitionAllowed(
             );
 
 
-        // ---------------------------------------------
-        // SELF CHECK
-        // ---------------------------------------------
+
+
+
 
         case DaqState::SELF_CHECK:
 
@@ -84,9 +84,9 @@ bool StateMachine::isTransitionAllowed(
             );
 
 
-        // ---------------------------------------------
-        // READY
-        // ---------------------------------------------
+
+
+
 
         case DaqState::READY:
 
@@ -96,9 +96,9 @@ bool StateMachine::isTransitionAllowed(
             );
 
 
-        // ---------------------------------------------
-        // STABILIZE
-        // ---------------------------------------------
+
+
+
 
         case DaqState::STABILIZE:
 
@@ -109,9 +109,9 @@ bool StateMachine::isTransitionAllowed(
             );
 
 
-        // ---------------------------------------------
-        // RECORD
-        // ---------------------------------------------
+
+
+
 
         case DaqState::RECORD:
 
@@ -121,9 +121,9 @@ bool StateMachine::isTransitionAllowed(
             );
 
 
-        // ---------------------------------------------
-        // STOPPING
-        // ---------------------------------------------
+
+
+
 
         case DaqState::STOPPING:
 
@@ -133,9 +133,9 @@ bool StateMachine::isTransitionAllowed(
             );
 
 
-        // ---------------------------------------------
-        // QC
-        // ---------------------------------------------
+
+
+
 
         case DaqState::QC:
 
@@ -145,12 +145,12 @@ bool StateMachine::isTransitionAllowed(
             );
 
 
-        // ---------------------------------------------
-        // ERROR
-        //
-        // Recovery thành công:
-        // ERROR -> SELF_CHECK
-        // ---------------------------------------------
+
+
+
+
+
+
 
         case DaqState::ERROR:
 
@@ -164,9 +164,9 @@ bool StateMachine::isTransitionAllowed(
 }
 
 
-// =====================================================
-// STATE NAME - CURRENT
-// =====================================================
+
+
+
 
 const char* StateMachine::stateName() const
 {
@@ -176,9 +176,9 @@ const char* StateMachine::stateName() const
 }
 
 
-// =====================================================
-// STATE NAME
-// =====================================================
+
+
+
 
 const char* StateMachine::stateName(
     DaqState state

@@ -11,38 +11,38 @@ class ADXL345Driver
 {
 public:
 
-    // =================================================
-    // INITIALIZATION / HEALTH
-    // =================================================
+
+
+
 
     bool begin();
 
     bool selfCheck();
 
 
-    // =================================================
-    // ACQUISITION CONFIGURATION
-    // =================================================
 
-    // 1 DATA_READY interrupt → 1 sample
+
+
+
+
     bool configureDataReady();
 
 
-    // FIFO STREAM mode + WATERMARK interrupt
+
     bool configureFifo(
         uint8_t watermark
     );
 
 
-    // Disable sensor interrupts
+
     bool disableInterrupts();
 
 
-    // =================================================
-    // DATA READ
-    // =================================================
 
-    // Đọc một XYZ sample
+
+
+
+
     bool readRaw(
         int16_t& x,
         int16_t& y,
@@ -50,7 +50,7 @@ public:
     );
 
 
-    // Đọc nhiều sample từ FIFO
+
     bool readFifo(
         RawSample* samples,
         uint8_t maxSamples,
@@ -58,15 +58,15 @@ public:
     );
 
 
-    // Số sample hiện có trong ADXL FIFO
+
     bool getFifoEntries(
         uint8_t& entries
     );
 
 
-    // =================================================
-    // INTERRUPT STATUS
-    // =================================================
+
+
+
 
     bool readInterruptSource(
         uint8_t& source
@@ -78,19 +78,19 @@ public:
     );
 
 
-    // =================================================
-    // STEP 11 - RECOVERY
-    // =================================================
 
-    // Reinitialize sensor và phục hồi acquisition mode.
+
+
+
+
     bool recover(
         AcquisitionMode mode
     );
 
 
-    // =================================================
-    // INFO
-    // =================================================
+
+
+
 
     uint8_t getAddress() const;
 
@@ -104,23 +104,23 @@ private:
     uint8_t deviceAddress = 0;
 
 
-    // =================================================
-    // DEVICE DETECTION
-    // =================================================
+
+
+
 
     bool detectDevice();
 
 
-    // =================================================
-    // COMMON CONFIGURATION
-    // =================================================
+
+
+
 
     bool configureCommon();
 
 
-    // =================================================
-    // LOW-LEVEL REGISTER ACCESS
-    // =================================================
+
+
+
 
     bool writeRegister(
         uint8_t reg,

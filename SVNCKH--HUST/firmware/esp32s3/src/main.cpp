@@ -16,27 +16,27 @@
 #include "fault_injector.h"
 #include "data_contract.h"
 
-// =====================================================
-// DAY 2 CONSOLIDATED MAIN
-// - Preserves Day 1 acquisition / FIFO / stress pipeline
-// - Adds FaultInjector integration
-// - Adds ISR gating
-// - Adds acquisition-path fault injection
-// - Adds manual recovery / ERROR -> SELF_CHECK -> READY path
-// =====================================================
 
-// =====================================================
-// LIMITS
-// =====================================================
+
+
+
+
+
+
+
+
+
+
+
 
 constexpr uint32_t MAX_RECORD_SECONDS = 3600;
 constexpr uint16_t MAX_STRESS_RUNS = 100;
 constexpr uint64_t SAMPLE_PERIOD_US =
     1000000ULL / Config::ADXL_ODR_HZ;
 
-// =====================================================
-// GLOBAL MODULES
-// =====================================================
+
+
+
 
 StateMachine stateMachine;
 ErrorManager errorManager;
@@ -46,9 +46,9 @@ AcquisitionEngine acquisition;
 Protocol protocol;
 FaultInjector faultInjector;
 
-// =====================================================
-// SESSION CONFIGURATION
-// =====================================================
+
+
+
 
 AcquisitionMode selectedMode = AcquisitionMode::DATA_READY;
 AcquisitionMode activeMode = AcquisitionMode::DATA_READY;
@@ -58,9 +58,9 @@ bool streamEnabled = false;
 char recordId[48] = "UNSET";
 char conditionId[48] = "UNSET";
 
-// =====================================================
-// EVENT QUEUE
-// =====================================================
+
+
+
 
 volatile uint64_t eventTimestampQueue[Config::EVENT_QUEUE_CAPACITY];
 volatile uint16_t eventWriteIndex = 0;
@@ -73,9 +73,9 @@ volatile uint32_t eventIrqCount = 0;
 volatile uint32_t eventQueueOverflowCount = 0;
 volatile uint32_t eventProcessedCount = 0;
 
-// =====================================================
-// RUN CONTROL
-// =====================================================
+
+
+
 
 volatile bool producerEnabled = false;
 volatile bool processingEnabled = false;
@@ -92,9 +92,9 @@ uint32_t requestedDurationSeconds = Config::DEFAULT_RECORD_SECONDS;
 
 char stopReason[32] = "NONE";
 
-// =====================================================
-// OUTPUT / QC COUNTERS
-// =====================================================
+
+
+
 
 volatile uint32_t consumedCount = 0;
 volatile uint32_t sequenceErrors = 0;
@@ -112,9 +112,9 @@ uint8_t consecutiveAcquisitionFailures = 0;
 uint8_t consecutiveRecoveryFailures = 0;
 bool recoverySeen = false;
 
-// =====================================================
-// STRESS CONTROL
-// =====================================================
+
+
+
 
 bool stressActive = false;
 bool stressAbortRequested = false;
@@ -127,9 +127,9 @@ uint16_t stressFailCount = 0;
 
 uint32_t nextStressStartMs = 0;
 
-// =====================================================
-// HELPERS
-// =====================================================
+
+
+
 
 const char* modeName(AcquisitionMode mode)
 {
@@ -170,8 +170,8 @@ void copyTextSafe(
 
 void printState()
 {
-    // One atomic-style formatted write keeps state events from
-    // being split/interleaved with streamed CSV sample rows.
+
+
     Serial.printf(
         "#STATE=%s\n",
         stateMachine.stateName()
@@ -193,9 +193,9 @@ uint32_t expectedSamplesFromElapsed()
     );
 }
 
-// =====================================================
-// EVENT QUEUE
-// =====================================================
+
+
+
 
 bool IRAM_ATTR pushEventTimestampFromISR(uint64_t timestampUs)
 {
@@ -294,10 +294,10 @@ void resetEventQueue()
     eventProcessedCount = 0;
 }
 
-// =====================================================
-// REAL ADXL345 ISR
-// IMPORTANT: ISR accepts events only during RECORD.
-// =====================================================
+
+
+
+
 
 void IRAM_ATTR adxlInterruptISR()
 {
@@ -312,9 +312,9 @@ void IRAM_ATTR adxlInterruptISR()
     pushEventTimestampFromISR(timestampUs);
 }
 
-// =====================================================
-// SELF TESTS
-// =====================================================
+
+
+
 
 bool ringBufferSelfTest()
 {
@@ -388,9 +388,9 @@ bool recoverySoftwareSelfTest()
     return true;
 }
 
-// =====================================================
-// SENSOR CONFIGURATION
-// =====================================================
+
+
+
 
 bool configureSensorForRun(AcquisitionMode mode)
 {
@@ -403,9 +403,9 @@ bool configureSensorForRun(AcquisitionMode mode)
     return adxl.configureDataReady();
 }
 
-// =====================================================
-// DAY 2 - FAULT INJECTION HELPERS
-// =====================================================
+
+
+
 
 void armFault(InjectedFault fault)
 {
@@ -444,8 +444,8 @@ bool attemptSensorRecovery()
 
     Serial.println("RECOVERY_ATTEMPT");
 
-    // Deterministic injected disconnect: recovery must fail
-    // until CLEARFAULT is issued.
+
+
     if (faultInjector.isDisconnectActive()) {
         errorManager.markRecoveryFailure();
         consecutiveRecoveryFailures++;
@@ -504,8 +504,8 @@ void runManualRecoveryTest()
     Serial.println();
     Serial.println("===== MANUAL RECOVERY TEST =====");
 
-    // In ERROR we explicitly exercise:
-    // ERROR -> SELF_CHECK -> READY on successful recovery.
+
+
     const bool wasError =
         stateMachine.getState() == DaqState::ERROR;
 
@@ -567,10 +567,10 @@ void runManualRecoveryTest()
     Serial.println("================================");
 }
 
-// Returns true when the current acquisition event must be blocked.
+
 bool applyInjectedFaultBeforeAcquisition(uint32_t expectedDroppedSamples)
 {
-    // Persistent disconnect has highest priority.
+
     if (faultInjector.isDisconnectActive()) {
         errorManager.report(ErrorCode::I2C_ERROR);
         errorManager.addDroppedSamples(expectedDroppedSamples);
@@ -596,8 +596,8 @@ bool applyInjectedFaultBeforeAcquisition(uint32_t expectedDroppedSamples)
             InjectedFault::TIMEOUT
         )
     ) {
-        // Logical timeout injection. Do not delay here, otherwise the
-        // elapsed-time timeout detector below would count it twice.
+
+
         errorManager.report(ErrorCode::TIMEOUT);
         errorManager.addDroppedSamples(expectedDroppedSamples);
 
@@ -610,7 +610,7 @@ bool applyInjectedFaultBeforeAcquisition(uint32_t expectedDroppedSamples)
             InjectedFault::BUFFER_OVERFLOW
         )
     ) {
-        // ErrorManager policy counts this as overflow + dropped sample.
+
         errorManager.report(
             ErrorCode::BUFFER_OVERFLOW
         );
@@ -640,8 +640,8 @@ void handleFailedAcquisition(
 {
     consecutiveAcquisitionFailures++;
 
-    // Real timeout detection heuristic:
-    // a failed read lasting at least configured I2C timeout is a timeout.
+
+
     if (
         operationDurationUs >=
         (static_cast<uint64_t>(Config::I2C_TIMEOUT_MS) * 1000ULL)
@@ -649,7 +649,7 @@ void handleFailedAcquisition(
         errorManager.report(ErrorCode::TIMEOUT);
     }
 
-    // Real driver failures are not pre-counted by fault injection.
+
     if (droppedSamplesAlreadyCounted == 0) {
         errorManager.addDroppedSamples(1);
     }
@@ -662,9 +662,9 @@ void handleFailedAcquisition(
     }
 }
 
-// =====================================================
-// MOCK EVENT TASK
-// =====================================================
+
+
+
 
 void mockEventTask(void* parameter)
 {
@@ -718,9 +718,9 @@ void mockEventTask(void* parameter)
     }
 }
 
-// =====================================================
-// FIFO PROCESSING
-// =====================================================
+
+
+
 
 bool processMockFifoEvent(uint64_t irqTimestampUs)
 {
@@ -806,9 +806,9 @@ bool processHardwareFifoEvent(uint64_t irqTimestampUs)
     return true;
 }
 
-// =====================================================
-// ACQUISITION TASK
-// =====================================================
+
+
+
 
 void acquisitionTask(void* parameter)
 {
@@ -879,9 +879,9 @@ void acquisitionTask(void* parameter)
     }
 }
 
-// =====================================================
-// OUTPUT TASK
-// =====================================================
+
+
+
 
 void outputTask(void* parameter)
 {
@@ -932,9 +932,9 @@ void outputTask(void* parameter)
     }
 }
 
-// =====================================================
-// RUN RESET
-// =====================================================
+
+
+
 
 void resetRunData()
 {
@@ -981,9 +981,9 @@ void resetRunData()
     acquisition.clearReadFailures();
 }
 
-// =====================================================
-// METADATA / FOOTER
-// =====================================================
+
+
+
 
 void printMetadataHeader()
 {
@@ -1122,9 +1122,9 @@ void printFooter(bool qcPass)
     );
 }
 
-// =====================================================
-// START / STOP
-// =====================================================
+
+
+
 
 bool startRecording(
     uint32_t durationSeconds,
@@ -1146,22 +1146,22 @@ bool startRecording(
         return false;
     }
 
-    // Silence unused-parameter warnings while preserving the
-    // existing public function signature used by the stress runner.
+
+
     (void)fromStress;
 
-    // =====================================================
-    // RESET PREVIOUS RUN
-    // =====================================================
+
+
+
 
     resetRunData();
 
     requestedDurationSeconds = durationSeconds;
     activeMode = selectedMode;
 
-    // =====================================================
-    // CONFIGURE SENSOR / MOCK SOURCE
-    // =====================================================
+
+
+
 
     if (!configureSensorForRun(activeMode)) {
         errorManager.report(ErrorCode::INVALID_CONFIG);
@@ -1170,9 +1170,9 @@ bool startRecording(
         return false;
     }
 
-    // =====================================================
-    // READY -> STABILIZE
-    // =====================================================
+
+
+
 
     if (!stateMachine.transitionTo(DaqState::STABILIZE)) {
         errorManager.report(ErrorCode::INVALID_STATE);
@@ -1183,54 +1183,37 @@ bool startRecording(
 
     delay(Config::STABILIZE_TIME_MS);
 
-    // Remove events/data accumulated before the official record.
+
     resetEventQueue();
     ringBuffer.reset();
     acquisition.reset();
 
-    // =====================================================
-    // STABILIZE -> RECORD
-    // =====================================================
+
+
+
 
     if (!stateMachine.transitionTo(DaqState::RECORD)) {
         errorManager.report(ErrorCode::INVALID_STATE);
         return false;
     }
 
-    // =====================================================
-    // OFFICIAL RECORD START
-    // =====================================================
+
+
+
 
     recordStartTimeUs =
         static_cast<uint64_t>(esp_timer_get_time());
 
     runActive = true;
-
-    /*
-     * SERIALIZATION BARRIER
-     * ---------------------
-     * producerEnabled = true:
-     *   - DATA_READY/FIFO events may start arriving immediately.
-     *
-     * processingEnabled = false:
-     *   - acquisitionTask cannot convert those events into
-     *     SamplePackets yet.
-     *   - therefore outputTask cannot print CSV sample rows while
-     *     DataContract metadata is still being serialized.
-     *
-     * This fixes the race that previously produced corrupted lines
-     * such as:
-     *   #fifo_watermark=0,1014812308,0,0,0,0
-     */
     processingEnabled = false;
     producerEnabled = true;
 
-    // Header must be fully written before sample processing begins.
+
     printState();
     printMetadataHeader();
 
-    // Metadata is complete. The acquisition task may now process
-    // queued events and the output task may stream CSV samples.
+
+
     processingEnabled = true;
 
     return true;
@@ -1244,7 +1227,7 @@ void requestStop(const char* reason)
         return;
     }
 
-    // Official stop time = instant firmware stops accepting new events.
+
     producerEnabled = false;
 
     if (Config::ADXL_HARDWARE_PRESENT) {
@@ -1266,9 +1249,9 @@ void requestStop(const char* reason)
     printState();
 }
 
-// =====================================================
-// FINAL FIFO DRAIN
-// =====================================================
+
+
+
 
 void performFinalFifoDrain()
 {
@@ -1282,28 +1265,28 @@ void performFinalFifoDrain()
         return;
     }
 
-    // -------------------------------------------------
-    // MOCK: synthesize the final partial batch so the
-    // duration-based expected sample count is exact.
-    // -------------------------------------------------
+
+
+
+
     if (!Config::ADXL_HARDWARE_PRESENT) {
         const uint32_t expected =
             expectedSamplesFromElapsed();
 
-        // IMPORTANT:
-        // The final mock FIFO partial batch represents only the samples
-        // accumulated after the last complete watermark interval.
-        // It must NOT be computed as (expected - produced), because that
-        // would accidentally refill samples intentionally lost by an
-        // injected I2C/timeout/disconnect fault.
-        //
-        // Example at 100 Hz, watermark 16, 5 s:
-        //   expected = 500
-        //   final partial = 500 % 16 = 4
-        // If one 16-sample FIFO event is dropped:
-        //   received = 30*16 + 4 = 484
-        //   dropped  = 16
-        // so expected - received == dropped.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         const uint32_t partial =
             expected % Config::FIFO_WATERMARK;
 
@@ -1339,11 +1322,11 @@ void performFinalFifoDrain()
         return;
     }
 
-    // -------------------------------------------------
-    // HARDWARE: after producer is stopped and queued
-    // watermark events are processed, read the remaining
-    // below-watermark FIFO samples once.
-    // -------------------------------------------------
+
+
+
+
+
     RawSample samples[Config::ADXL_FIFO_MAX_SAMPLES];
     uint8_t samplesRead = 0;
 
@@ -1389,9 +1372,9 @@ void performFinalFifoDrain()
     recoverySeen = false;
 }
 
-// =====================================================
-// QC
-// =====================================================
+
+
+
 
 bool evaluateRunQc()
 {
@@ -1583,7 +1566,7 @@ void serviceStopping()
         return;
     }
 
-    // First drain queued acquisition events.
+
     if (
         getEventQueueSize() > 0 ||
         acquisitionBusy
@@ -1591,13 +1574,13 @@ void serviceStopping()
         return;
     }
 
-    // Then perform the final FIFO partial drain once.
+
     if (!finalFifoDrainDone) {
         performFinalFifoDrain();
         return;
     }
 
-    // Then wait for Output consumer to drain RingBuffer.
+
     if (!ringBuffer.isEmpty()) {
         return;
     }
@@ -1612,9 +1595,9 @@ void serviceStopping()
     finalizeRun();
 }
 
-// =====================================================
-// CRITICAL ERROR
-// =====================================================
+
+
+
 
 void serviceCriticalError()
 {
@@ -1653,9 +1636,9 @@ void serviceCriticalError()
     criticalFaultRequested = false;
 }
 
-// =====================================================
-// STATUS
-// =====================================================
+
+
+
 
 void printExtendedStatus()
 {
@@ -1771,9 +1754,9 @@ void printExtendedStatus()
     Serial.println("==================");
 }
 
-// =====================================================
-// STRESS
-// =====================================================
+
+
+
 
 void startStressTest(
     uint32_t durationSeconds,
@@ -1819,9 +1802,9 @@ void startStressTest(
     Serial.println(stressTotalRuns);
 }
 
-// =====================================================
-// COMMAND HANDLER
-// =====================================================
+
+
+
 
 void handleCommand(const ProtocolCommand& command)
 {
@@ -1958,9 +1941,9 @@ void handleCommand(const ProtocolCommand& command)
             break;
         }
 
-        // =================================================
-        // DAY 2 FAULT COMMANDS
-        // =================================================
+
+
+
 
         case ProtocolCommandType::FAULT_I2C:
             armFault(InjectedFault::I2C_ERROR);
@@ -1999,7 +1982,7 @@ void handleCommand(const ProtocolCommand& command)
             break;
 
         case ProtocolCommandType::INVALID:
-            // Protocol parser has already counted INVALID_CONFIG.
+
             Serial.println("ERR: INVALID_COMMAND");
             break;
 
@@ -2009,9 +1992,9 @@ void handleCommand(const ProtocolCommand& command)
     }
 }
 
-// =====================================================
-// SETUP
-// =====================================================
+
+
+
 
 void setup()
 {
@@ -2104,7 +2087,7 @@ void setup()
         Serial.println("PASS");
     }
 
-    // Hardware ISR is attached once. producerEnabled gates acceptance.
+
     if (Config::ADXL_HARDWARE_PRESENT) {
         pinMode(
             Config::ADXL_INT_PIN,
@@ -2195,15 +2178,15 @@ void setup()
     Serial.println("Type HELP for commands.");
 }
 
-// =====================================================
-// LOOP
-// =====================================================
+
+
+
 
 void loop()
 {
-    // -------------------------------------------------
-    // COMMAND SERVICE
-    // -------------------------------------------------
+
+
+
 
     protocol.poll();
 
@@ -2214,15 +2197,15 @@ void loop()
         handleCommand(command);
     }
 
-    // -------------------------------------------------
-    // CRITICAL ERROR SERVICE
-    // -------------------------------------------------
+
+
+
 
     serviceCriticalError();
 
-    // -------------------------------------------------
-    // AUTO STOP
-    // -------------------------------------------------
+
+
+
 
     if (
         stateMachine.getState() == DaqState::RECORD &&
@@ -2242,9 +2225,9 @@ void loop()
         bool durationComplete =
             elapsedUs >= targetDurationUs;
 
-        // For mock DATA_READY, wait until at least the nominal
-        // event count exists. This avoids stopping one scheduler
-        // tick before the final 100 Hz event.
+
+
+
         if (
             durationComplete &&
             !Config::ADXL_HARDWARE_PRESENT &&
@@ -2258,8 +2241,8 @@ void loop()
                 eventIrqCount >= nominalSamples;
         }
 
-        // For mock FIFO, wait for all complete watermark events
-        // that should occur inside the requested duration.
+
+
         if (
             durationComplete &&
             !Config::ADXL_HARDWARE_PRESENT &&
@@ -2282,15 +2265,15 @@ void loop()
         }
     }
 
-    // -------------------------------------------------
-    // STOPPING -> FIFO DRAIN -> BUFFER DRAIN -> QC
-    // -------------------------------------------------
+
+
+
 
     serviceStopping();
 
-    // -------------------------------------------------
-    // STRESS NEXT RUN
-    // -------------------------------------------------
+
+
+
 
     if (
         stressActive &&

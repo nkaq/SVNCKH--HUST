@@ -12,25 +12,25 @@ class ErrorManager
 {
 public:
 
-    // Reset toàn bộ error/recovery counters
+
     void reset();
 
 
-    // Báo một error event
+
     void report(
         ErrorCode error
     );
 
 
-    // Khi biết chính xác có thêm N sample bị mất
+
     void addDroppedSamples(
         uint32_t count
     );
 
 
-    // =================================================
-    // RECOVERY COUNTERS
-    // =================================================
+
+
+
 
     void markRecoveryAttempt();
 
@@ -39,14 +39,14 @@ public:
     void markRecoveryFailure();
 
 
-    // =================================================
-    // READ STATUS
-    // =================================================
+
+
+
 
     ErrorCode getLastError() const;
 
 
-    // Return COPY để an toàn khi nhiều task cùng chạy.
+
     ErrorCounters getCounters() const;
 
 

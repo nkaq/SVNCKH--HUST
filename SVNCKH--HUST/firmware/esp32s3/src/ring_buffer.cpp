@@ -1,9 +1,9 @@
 #include "ring_buffer.h"
 
 
-// =====================================================
-// RESET
-// =====================================================
+
+
+
 
 void RingBuffer::reset()
 {
@@ -23,9 +23,9 @@ void RingBuffer::reset()
 }
 
 
-// =====================================================
-// PUSH
-// =====================================================
+
+
+
 
 bool RingBuffer::push(
     const SamplePacket& packet
@@ -37,13 +37,13 @@ bool RingBuffer::push(
     portENTER_CRITICAL(&mux);
 
 
-    // -------------------------------------------------
-    // POLICY:
-    //
-    // Buffer full → DROP NEWEST
-    //
-    // Không overwrite packet cũ.
-    // -------------------------------------------------
+
+
+
+
+
+
+
 
     if (
         count
@@ -79,9 +79,9 @@ bool RingBuffer::push(
 }
 
 
-// =====================================================
-// POP
-// =====================================================
+
+
+
 
 bool RingBuffer::pop(
     SamplePacket& packet
@@ -95,8 +95,8 @@ bool RingBuffer::pop(
 
     if (count > 0)
     {
-        // FIFO:
-        // packet cũ nhất được lấy trước.
+
+
         packet =
             buffer[readIndex];
 
@@ -120,9 +120,9 @@ bool RingBuffer::pop(
 }
 
 
-// =====================================================
-// IS EMPTY
-// =====================================================
+
+
+
 
 bool RingBuffer::isEmpty() const
 {
@@ -143,9 +143,9 @@ bool RingBuffer::isEmpty() const
 }
 
 
-// =====================================================
-// IS FULL
-// =====================================================
+
+
+
 
 bool RingBuffer::isFull() const
 {
@@ -169,9 +169,9 @@ bool RingBuffer::isFull() const
 }
 
 
-// =====================================================
-// SIZE
-// =====================================================
+
+
+
 
 uint16_t RingBuffer::size() const
 {
@@ -191,9 +191,9 @@ uint16_t RingBuffer::size() const
 }
 
 
-// =====================================================
-// CAPACITY
-// =====================================================
+
+
+
 
 uint16_t RingBuffer::capacity() const
 {
@@ -201,9 +201,9 @@ uint16_t RingBuffer::capacity() const
 }
 
 
-// =====================================================
-// PEAK OCCUPANCY
-// =====================================================
+
+
+
 
 uint16_t RingBuffer::peakOccupancy() const
 {

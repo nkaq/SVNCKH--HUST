@@ -11,7 +11,7 @@ class AcquisitionEngine
 {
 public:
 
-    // Kết nối acquisition với driver/buffer/error manager.
+
     void begin(
         ADXL345Driver* sensorDriver,
         RingBuffer* ringBuffer,
@@ -19,34 +19,34 @@ public:
     );
 
 
-    // Reset trước mỗi recording.
+
     void reset();
 
 
-    // =================================================
-    // DATA_READY MODE
-    //
-    // 1 DATA_READY IRQ
-    // → 1 sample.
-    //
-    // Timestamp phải được capture từ IRQ trước khi gọi.
-    // =================================================
+
+
+
+
+
+
+
+
 
     bool acquireOneSample(
         uint64_t irqTimestampUs
     );
 
 
-    // =================================================
-    // FIFO MODE
-    //
-    // Driver đã đọc raw XYZ từ FIFO.
-    //
-    // AcquisitionEngine chỉ:
-    // raw + reconstructed timestamp
-    // → SamplePacket
-    // → RingBuffer
-    // =================================================
+
+
+
+
+
+
+
+
+
+
 
     bool pushRawSample(
         uint64_t timestampUs,
@@ -57,17 +57,17 @@ public:
     );
 
 
-    // Sequence number tiếp theo.
+
     uint32_t getSampleIndex() const;
 
 
-    // Số lần sensor read liên tiếp thất bại.
-    //
-    // Dùng cho Step 11 recovery.
+
+
+
     uint8_t getConsecutiveReadFailures() const;
 
 
-    // Clear failure streak sau recovery.
+
     void clearReadFailures();
 
 
@@ -80,18 +80,18 @@ private:
     ErrorManager* errors = nullptr;
 
 
-    // =================================================
-    // SAMPLE SEQUENCE
-    // =================================================
+
+
+
 
     uint32_t sampleIndex = 0;
 
 
-    // =================================================
-    // STEP 11
-    //
-    // Theo dõi read failure liên tiếp.
-    // =================================================
+
+
+
+
+
 
     uint8_t consecutiveReadFailures = 0;
 };

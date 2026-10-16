@@ -3,12 +3,12 @@
 #include <Arduino.h>
 
 
-// =====================================================
-// FAULT INJECTION TYPES
-//
-// Chỉ dùng cho engineering validation / software test.
-// Không phải lỗi thật từ sensor.
-// =====================================================
+
+
+
+
+
+
 
 enum class InjectedFault : uint8_t
 {
@@ -26,9 +26,9 @@ enum class InjectedFault : uint8_t
 };
 
 
-// =====================================================
-// FAULT INJECTOR
-// =====================================================
+
+
+
 
 class FaultInjector
 {
@@ -39,27 +39,27 @@ public:
     void reset();
 
 
-    // Arm một lỗi.
-    // Lỗi sẽ được consume đúng 1 lần,
-    // trừ SENSOR_DISCONNECT có thể giữ active.
+
+
+
     void arm(
         InjectedFault fault
     );
 
 
-    // Kiểm tra lỗi đang chờ.
+
     bool isArmed(
         InjectedFault fault
     ) const;
 
 
-    // Consume lỗi một lần.
+
     bool consume(
         InjectedFault fault
     );
 
 
-    // SENSOR_DISCONNECT có thể giữ liên tục.
+
     void setDisconnectActive(
         bool active
     );

@@ -1,9 +1,9 @@
 #include "adxl345_driver.h"
 
 
-// =====================================================
-// ADXL345 REGISTER MAP
-// =====================================================
+
+
+
 
 static constexpr uint8_t REG_DEVID =
     0x00;
@@ -36,52 +36,52 @@ static constexpr uint8_t REG_FIFO_STATUS =
     0x39;
 
 
-// =====================================================
-// DEVICE CONSTANTS
-// =====================================================
+
+
+
 
 static constexpr uint8_t ADXL345_DEVID =
     0xE5;
 
 
-// ALT ADDRESS low
+
 static constexpr uint8_t ADDRESS_LOW =
     0x53;
 
 
-// ALT ADDRESS high
+
 static constexpr uint8_t ADDRESS_HIGH =
     0x1D;
 
 
-// =====================================================
-// INTERRUPT BITS
-// =====================================================
+
+
+
 
 static constexpr uint8_t INT_DATA_READY =
     0x80;
 
 
-// Bit 1
+
 static constexpr uint8_t INT_WATERMARK =
     0x02;
 
 
-// Bit 0
+
 static constexpr uint8_t INT_OVERRUN =
     0x01;
 
 
-// =====================================================
-// FIFO MODE
-// =====================================================
 
-// FIFO_CTL D7:D6
-//
-// 00 = BYPASS
-// 01 = FIFO
-// 10 = STREAM
-// 11 = TRIGGER
+
+
+
+
+
+
+
+
+
 
 static constexpr uint8_t FIFO_MODE_BYPASS =
     0x00;
@@ -91,9 +91,9 @@ static constexpr uint8_t FIFO_MODE_STREAM =
     0x80;
 
 
-// =====================================================
-// POWER
-// =====================================================
+
+
+
 
 static constexpr uint8_t POWER_STANDBY =
     0x00;
@@ -103,22 +103,22 @@ static constexpr uint8_t POWER_MEASURE =
     0x08;
 
 
-// =====================================================
-// BEGIN
-// =====================================================
+
+
+
 
 bool ADXL345Driver::begin()
 {
     initialized = false;
 
 
-    // =================================================
-    // MOCK MODE
-    //
-    // Hiện tại chưa có ADXL345 thật.
-    //
-    // Không gọi I2C.
-    // =================================================
+
+
+
+
+
+
+
 
     if (!Config::ADXL_HARDWARE_PRESENT)
     {
@@ -130,9 +130,9 @@ bool ADXL345Driver::begin()
     }
 
 
-    // =================================================
-    // REAL HARDWARE MODE
-    // =================================================
+
+
+
 
     if (
         Config::ADXL_SDA_PIN < 0 ||
@@ -160,9 +160,9 @@ bool ADXL345Driver::begin()
     );
 
 
-    // -------------------------------------------------
-    // FIND ADXL345
-    // -------------------------------------------------
+
+
+
 
     if (!detectDevice())
     {
@@ -170,9 +170,9 @@ bool ADXL345Driver::begin()
     }
 
 
-    // -------------------------------------------------
-    // BASIC SENSOR CONFIG
-    // -------------------------------------------------
+
+
+
 
     if (!configureCommon())
     {
@@ -187,9 +187,9 @@ bool ADXL345Driver::begin()
 }
 
 
-// =====================================================
-// DETECT DEVICE
-// =====================================================
+
+
+
 
 bool ADXL345Driver::detectDevice()
 {
@@ -233,15 +233,15 @@ bool ADXL345Driver::detectDevice()
 }
 
 
-// =====================================================
-// COMMON SENSOR CONFIGURATION
-// =====================================================
+
+
+
 
 bool ADXL345Driver::configureCommon()
 {
-    // -------------------------------------------------
-    // STANDBY BEFORE CONFIGURATION
-    // -------------------------------------------------
+
+
+
 
     if (
         !writeRegister(
@@ -254,9 +254,9 @@ bool ADXL345Driver::configureCommon()
     }
 
 
-    // -------------------------------------------------
-    // ODR
-    // -------------------------------------------------
+
+
+
 
     if (
         !writeRegister(
@@ -269,13 +269,13 @@ bool ADXL345Driver::configureCommon()
     }
 
 
-    // -------------------------------------------------
-    // RANGE + FULL RESOLUTION
-    //
-    // DATA_FORMAT:
-    // bit 3 FULL_RES
-    // bits 1:0 RANGE
-    // -------------------------------------------------
+
+
+
+
+
+
+
 
     uint8_t rangeCode = 0;
 
@@ -318,9 +318,9 @@ bool ADXL345Driver::configureCommon()
     }
 
 
-    // -------------------------------------------------
-    // DISABLE INTERRUPTS DURING SETUP
-    // -------------------------------------------------
+
+
+
 
     if (
         !writeRegister(
@@ -333,11 +333,11 @@ bool ADXL345Driver::configureCommon()
     }
 
 
-    // -------------------------------------------------
-    // ALL INTERRUPTS → INT1
-    //
-    // INT_MAP bit = 0 means INT1.
-    // -------------------------------------------------
+
+
+
+
+
 
     if (
         !writeRegister(
@@ -350,9 +350,9 @@ bool ADXL345Driver::configureCommon()
     }
 
 
-    // -------------------------------------------------
-    // FIFO BYPASS INITIALLY
-    // -------------------------------------------------
+
+
+
 
     if (
         !writeRegister(
@@ -365,9 +365,9 @@ bool ADXL345Driver::configureCommon()
     }
 
 
-    // -------------------------------------------------
-    // MEASUREMENT MODE
-    // -------------------------------------------------
+
+
+
 
     if (
         !writeRegister(
@@ -384,18 +384,18 @@ bool ADXL345Driver::configureCommon()
 }
 
 
-// =====================================================
-// SELF CHECK
-// =====================================================
+
+
+
 
 bool ADXL345Driver::selfCheck()
 {
-    // -------------------------------------------------
-    // MOCK
-    //
-    // Chỉ chứng minh software path.
-    // KHÔNG phải sensor self-check thật.
-    // -------------------------------------------------
+
+
+
+
+
+
 
     if (!Config::ADXL_HARDWARE_PRESENT)
     {
@@ -429,9 +429,9 @@ bool ADXL345Driver::selfCheck()
 }
 
 
-// =====================================================
-// CONFIGURE DATA_READY MODE
-// =====================================================
+
+
+
 
 bool ADXL345Driver::configureDataReady()
 {
@@ -441,16 +441,16 @@ bool ADXL345Driver::configureDataReady()
     }
 
 
-    // Mock path
+
     if (!Config::ADXL_HARDWARE_PRESENT)
     {
         return true;
     }
 
 
-    // -------------------------------------------------
-    // DISABLE INTERRUPTS FIRST
-    // -------------------------------------------------
+
+
+
 
     if (!disableInterrupts())
     {
@@ -458,9 +458,9 @@ bool ADXL345Driver::configureDataReady()
     }
 
 
-    // -------------------------------------------------
-    // FIFO BYPASS
-    // -------------------------------------------------
+
+
+
 
     if (
         !writeRegister(
@@ -473,9 +473,9 @@ bool ADXL345Driver::configureDataReady()
     }
 
 
-    // -------------------------------------------------
-    // DATA_READY → INT1
-    // -------------------------------------------------
+
+
+
 
     if (
         !writeRegister(
@@ -488,7 +488,7 @@ bool ADXL345Driver::configureDataReady()
     }
 
 
-    // Read INT_SOURCE once to clear stale status.
+
     uint8_t dummy = 0;
 
     readInterruptSource(
@@ -496,9 +496,9 @@ bool ADXL345Driver::configureDataReady()
     );
 
 
-    // -------------------------------------------------
-    // ENABLE DATA_READY
-    // -------------------------------------------------
+
+
+
 
     if (
         !writeRegister(
@@ -515,9 +515,9 @@ bool ADXL345Driver::configureDataReady()
 }
 
 
-// =====================================================
-// CONFIGURE FIFO MODE
-// =====================================================
+
+
+
 
 bool ADXL345Driver::configureFifo(
     uint8_t watermark
@@ -529,7 +529,7 @@ bool ADXL345Driver::configureFifo(
     }
 
 
-    // 5-bit SAMPLES field.
+
     if (
         watermark == 0 ||
         watermark > 31
@@ -539,16 +539,16 @@ bool ADXL345Driver::configureFifo(
     }
 
 
-    // Mock mode
+
     if (!Config::ADXL_HARDWARE_PRESENT)
     {
         return true;
     }
 
 
-    // -------------------------------------------------
-    // DISABLE INTERRUPTS WHILE CONFIGURING FIFO
-    // -------------------------------------------------
+
+
+
 
     if (!disableInterrupts())
     {
@@ -556,12 +556,12 @@ bool ADXL345Driver::configureFifo(
     }
 
 
-    // -------------------------------------------------
-    // FIFO STREAM MODE
-    //
-    // D7:D6 = 10
-    // D4:D0 = watermark
-    // -------------------------------------------------
+
+
+
+
+
+
 
     uint8_t fifoControl =
         FIFO_MODE_STREAM |
@@ -579,9 +579,9 @@ bool ADXL345Driver::configureFifo(
     }
 
 
-    // -------------------------------------------------
-    // WATERMARK + OVERRUN → INT1
-    // -------------------------------------------------
+
+
+
 
     if (
         !writeRegister(
@@ -601,11 +601,11 @@ bool ADXL345Driver::configureFifo(
     );
 
 
-    // -------------------------------------------------
-    // ENABLE:
-    // WATERMARK
-    // OVERRUN
-    // -------------------------------------------------
+
+
+
+
+
 
     if (
         !writeRegister(
@@ -623,9 +623,9 @@ bool ADXL345Driver::configureFifo(
 }
 
 
-// =====================================================
-// DISABLE INTERRUPTS
-// =====================================================
+
+
+
 
 bool ADXL345Driver::disableInterrupts()
 {
@@ -648,9 +648,9 @@ bool ADXL345Driver::disableInterrupts()
 }
 
 
-// =====================================================
-// READ ONE XYZ SAMPLE
-// =====================================================
+
+
+
 
 bool ADXL345Driver::readRaw(
     int16_t& x,
@@ -664,11 +664,11 @@ bool ADXL345Driver::readRaw(
     }
 
 
-    // =================================================
-    // MOCK DATA
-    //
-    // Chưa phải experimental data.
-    // =================================================
+
+
+
+
+
 
     if (!Config::ADXL_HARDWARE_PRESENT)
     {
@@ -682,9 +682,9 @@ bool ADXL345Driver::readRaw(
     }
 
 
-    // =================================================
-    // REAL DATA
-    // =================================================
+
+
+
 
     uint8_t raw[6];
 
@@ -738,9 +738,9 @@ bool ADXL345Driver::readRaw(
 }
 
 
-// =====================================================
-// GET FIFO ENTRIES
-// =====================================================
+
+
+
 
 bool ADXL345Driver::getFifoEntries(
     uint8_t& entries
@@ -755,7 +755,7 @@ bool ADXL345Driver::getFifoEntries(
     }
 
 
-    // Mock FIFO itself is generated by main/task.
+
     if (!Config::ADXL_HARDWARE_PRESENT)
     {
         return true;
@@ -776,12 +776,12 @@ bool ADXL345Driver::getFifoEntries(
     }
 
 
-    // FIFO_STATUS bits D5:D0
+
     entries =
         status & 0x3F;
 
 
-    // Physical ADXL345 FIFO capacity is 32.
+
     if (
         entries
         > Config::ADXL_FIFO_MAX_SAMPLES
@@ -796,9 +796,9 @@ bool ADXL345Driver::getFifoEntries(
 }
 
 
-// =====================================================
-// READ FIFO
-// =====================================================
+
+
+
 
 bool ADXL345Driver::readFifo(
     RawSample* samples,
@@ -819,12 +819,12 @@ bool ADXL345Driver::readFifo(
     }
 
 
-    // =================================================
-    // MOCK
-    //
-    // Main mock generator hiện quản lý batch.
-    // Function vẫn hỗ trợ software testing.
-    // =================================================
+
+
+
+
+
+
 
     if (!Config::ADXL_HARDWARE_PRESENT)
     {
@@ -863,9 +863,9 @@ bool ADXL345Driver::readFifo(
     }
 
 
-    // =================================================
-    // REAL FIFO
-    // =================================================
+
+
+
 
     uint8_t entries = 0;
 
@@ -913,9 +913,9 @@ bool ADXL345Driver::readFifo(
 }
 
 
-// =====================================================
-// READ INTERRUPT SOURCE
-// =====================================================
+
+
+
 
 bool ADXL345Driver::readInterruptSource(
     uint8_t& source
@@ -943,9 +943,9 @@ bool ADXL345Driver::readInterruptSource(
 }
 
 
-// =====================================================
-// FIFO OVERRUN STATUS
-// =====================================================
+
+
+
 
 bool ADXL345Driver::fifoOverrunDetected(
     bool& overrun
@@ -979,17 +979,17 @@ bool ADXL345Driver::fifoOverrunDetected(
 }
 
 
-// =====================================================
-// STEP 11 - RECOVERY
-// =====================================================
+
+
+
 
 bool ADXL345Driver::recover(
     AcquisitionMode mode
 )
 {
-    // =================================================
-    // MOCK
-    // =================================================
+
+
+
 
     if (!Config::ADXL_HARDWARE_PRESENT)
     {
@@ -999,9 +999,9 @@ bool ADXL345Driver::recover(
     }
 
 
-    // =================================================
-    // REAL HARDWARE
-    // =================================================
+
+
+
 
     disableInterrupts();
 
@@ -1017,21 +1017,21 @@ bool ADXL345Driver::recover(
     deviceAddress = 0;
 
 
-    // Reinitialize I2C + sensor
+
     if (!begin())
     {
         return false;
     }
 
 
-    // Re-check identity
+
     if (!selfCheck())
     {
         return false;
     }
 
 
-    // Restore previous acquisition mode
+
     switch (mode)
     {
         case AcquisitionMode::DATA_READY:
@@ -1051,9 +1051,9 @@ bool ADXL345Driver::recover(
 }
 
 
-// =====================================================
-// LOW-LEVEL WRITE REGISTER
-// =====================================================
+
+
+
 
 bool ADXL345Driver::writeRegister(
     uint8_t reg,
@@ -1093,9 +1093,9 @@ bool ADXL345Driver::writeRegister(
 }
 
 
-// =====================================================
-// LOW-LEVEL READ REGISTER
-// =====================================================
+
+
+
 
 bool ADXL345Driver::readRegister(
     uint8_t reg,
@@ -1110,9 +1110,9 @@ bool ADXL345Driver::readRegister(
 }
 
 
-// =====================================================
-// LOW-LEVEL MULTI REGISTER READ
-// =====================================================
+
+
+
 
 bool ADXL345Driver::readRegisters(
     uint8_t startReg,
@@ -1130,9 +1130,9 @@ bool ADXL345Driver::readRegisters(
     }
 
 
-    // -------------------------------------------------
-    // SET REGISTER POINTER
-    // -------------------------------------------------
+
+
+
 
     Wire.beginTransmission(
         deviceAddress
@@ -1156,9 +1156,9 @@ bool ADXL345Driver::readRegisters(
     }
 
 
-    // -------------------------------------------------
-    // READ DATA
-    // -------------------------------------------------
+
+
+
 
     size_t received =
         Wire.requestFrom(
@@ -1176,7 +1176,7 @@ bool ADXL345Driver::readRegisters(
         received != length
     )
     {
-        // Flush anything partially received.
+
         while (Wire.available())
         {
             Wire.read();
@@ -1210,9 +1210,9 @@ bool ADXL345Driver::readRegisters(
 }
 
 
-// =====================================================
-// INFO
-// =====================================================
+
+
+
 
 uint8_t ADXL345Driver::getAddress() const
 {

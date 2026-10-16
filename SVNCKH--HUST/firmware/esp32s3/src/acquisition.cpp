@@ -1,9 +1,9 @@
 #include "acquisition.h"
 
 
-// =====================================================
-// BEGIN
-// =====================================================
+
+
+
 
 void AcquisitionEngine::begin(
     ADXL345Driver* sensorDriver,
@@ -27,9 +27,9 @@ void AcquisitionEngine::begin(
 }
 
 
-// =====================================================
-// RESET
-// =====================================================
+
+
+
 
 void AcquisitionEngine::reset()
 {
@@ -39,17 +39,17 @@ void AcquisitionEngine::reset()
 }
 
 
-// =====================================================
-// DATA_READY MODE
-// =====================================================
+
+
+
 
 bool AcquisitionEngine::acquireOneSample(
     uint64_t irqTimestampUs
 )
 {
-    // -------------------------------------------------
-    // MODULE VALIDATION
-    // -------------------------------------------------
+
+
+
 
     if (
         sensor == nullptr ||
@@ -61,9 +61,9 @@ bool AcquisitionEngine::acquireOneSample(
     }
 
 
-    // -------------------------------------------------
-    // READ RAW ADXL345
-    // -------------------------------------------------
+
+
+
 
     int16_t x = 0;
 
@@ -80,7 +80,7 @@ bool AcquisitionEngine::acquireOneSample(
         )
     )
     {
-        // I2C / sensor read failed.
+
         errors->report(
             ErrorCode::I2C_ERROR
         );
@@ -99,18 +99,18 @@ bool AcquisitionEngine::acquireOneSample(
     }
 
 
-    // Sensor read thành công
-    // → failure streak reset.
+
+
     consecutiveReadFailures = 0;
 
 
-    // -------------------------------------------------
-    // PACK SAMPLE
-    //
-    // Timestamp KHÔNG lấy ở đây.
-    //
-    // Nó đến từ DATA_READY IRQ.
-    // -------------------------------------------------
+
+
+
+
+
+
+
 
     return pushRawSample(
         irqTimestampUs,
@@ -122,12 +122,12 @@ bool AcquisitionEngine::acquireOneSample(
 }
 
 
-// =====================================================
-// PUSH RAW SAMPLE
-//
-// Dùng chung cho:
-// DATA_READY + FIFO.
-// =====================================================
+
+
+
+
+
+
 
 bool AcquisitionEngine::pushRawSample(
     uint64_t timestampUs,
@@ -146,9 +146,9 @@ bool AcquisitionEngine::pushRawSample(
     }
 
 
-    // -------------------------------------------------
-    // CREATE PACKET
-    // -------------------------------------------------
+
+
+
 
     SamplePacket packet{};
 
@@ -172,28 +172,28 @@ bool AcquisitionEngine::pushRawSample(
         statusFlags;
 
 
-    // -------------------------------------------------
-    // IMPORTANT
-    //
-    // sample_index tăng sau khi acquisition đã nhận
-    // sample hợp lệ.
-    //
-    // Nếu RingBuffer full thì packet này bị drop,
-    // nhưng sample_index vẫn đã được consume.
-    //
-    // Nhờ đó output có thể xuất hiện gap:
-    //
-    // 100,101,103
-    //
-    // → bằng chứng packet 102 bị drop.
-    // -------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     sampleIndex++;
 
 
-    // -------------------------------------------------
-    // PUSH RING BUFFER
-    // -------------------------------------------------
+
+
+
 
     if (!buffer->push(packet))
     {
@@ -210,9 +210,9 @@ bool AcquisitionEngine::pushRawSample(
 }
 
 
-// =====================================================
-// GET SAMPLE INDEX
-// =====================================================
+
+
+
 
 uint32_t AcquisitionEngine::getSampleIndex() const
 {
@@ -220,9 +220,9 @@ uint32_t AcquisitionEngine::getSampleIndex() const
 }
 
 
-// =====================================================
-// GET READ FAILURE STREAK
-// =====================================================
+
+
+
 
 uint8_t
 AcquisitionEngine::getConsecutiveReadFailures() const
@@ -231,9 +231,9 @@ AcquisitionEngine::getConsecutiveReadFailures() const
 }
 
 
-// =====================================================
-// CLEAR FAILURE STREAK
-// =====================================================
+
+
+
 
 void AcquisitionEngine::clearReadFailures()
 {

@@ -4,9 +4,9 @@
 namespace DataContract
 {
 
-// =====================================================
-// MODE NAME
-// =====================================================
+
+
+
 
 const char* modeName(
     AcquisitionMode mode
@@ -27,9 +27,9 @@ const char* modeName(
 }
 
 
-// =====================================================
-// BEGIN RECORD
-// =====================================================
+
+
+
 
 void printRecordBegin(
     const RecordMetadata& metadata
@@ -42,9 +42,9 @@ void printRecordBegin(
     );
 
 
-    // -------------------------------------------------
-    // CONTRACT / SOFTWARE VERSION
-    // -------------------------------------------------
+
+
+
 
     Serial.print(
         "#data_contract_version="
@@ -73,12 +73,12 @@ void printRecordBegin(
     );
 
 
-    // -------------------------------------------------
-    // DATA SOURCE
-    //
-    // Cực quan trọng:
-    // MOCK không được nhầm với dữ liệu sensor thật.
-    // -------------------------------------------------
+
+
+
+
+
+
 
     Serial.print(
         "#data_source="
@@ -89,9 +89,9 @@ void printRecordBegin(
     );
 
 
-    // -------------------------------------------------
-    // RECORD IDENTITY
-    // -------------------------------------------------
+
+
+
 
     Serial.print(
         "#record_id="
@@ -111,9 +111,9 @@ void printRecordBegin(
     );
 
 
-    // -------------------------------------------------
-    // SENSOR CONFIGURATION
-    // -------------------------------------------------
+
+
+
 
     Serial.print(
         "#sensor_id="
@@ -162,9 +162,9 @@ void printRecordBegin(
     );
 
 
-    // -------------------------------------------------
-    // TIMESTAMP
-    // -------------------------------------------------
+
+
+
 
     Serial.print(
         "#timestamp_clock="
@@ -184,9 +184,9 @@ void printRecordBegin(
     );
 
 
-    // -------------------------------------------------
-    // CALIBRATION / SENSOR HEALTH
-    // -------------------------------------------------
+
+
+
 
     Serial.print(
         "#calibration_version="
@@ -206,9 +206,9 @@ void printRecordBegin(
     );
 
 
-    // -------------------------------------------------
-    // RECORD TIMING
-    // -------------------------------------------------
+
+
+
 
     Serial.printf(
         "#start_time_us=%llu\n",
@@ -227,9 +227,9 @@ void printRecordBegin(
     );
 
 
-    // -------------------------------------------------
-    // STRESS TEST
-    // -------------------------------------------------
+
+
+
 
     if (metadata.stressActive)
     {
@@ -254,9 +254,9 @@ void printRecordBegin(
     }
 
 
-    // -------------------------------------------------
-    // SAMPLE FORMAT DECLARATION
-    // -------------------------------------------------
+
+
+
 
     Serial.print(
         "#sample_format="
@@ -271,9 +271,9 @@ void printRecordBegin(
 }
 
 
-// =====================================================
-// SAMPLE HEADER
-// =====================================================
+
+
+
 
 void printSampleHeader()
 {
@@ -287,9 +287,9 @@ void printSampleHeader()
 }
 
 
-// =====================================================
-// SAMPLE
-// =====================================================
+
+
+
 
 void printSample(
     const SamplePacket& sample
@@ -325,9 +325,9 @@ void printSample(
 }
 
 
-// =====================================================
-// RECORD FOOTER
-// =====================================================
+
+
+
 
 void printRecordFooter(
     const RecordFooter& footer
@@ -340,9 +340,9 @@ void printRecordFooter(
     );
 
 
-    // -------------------------------------------------
-    // TIMING
-    // -------------------------------------------------
+
+
+
 
     Serial.printf(
         "#stop_time_us=%llu\n",
@@ -352,9 +352,9 @@ void printRecordFooter(
     );
 
 
-    // -------------------------------------------------
-    // SAMPLE ACCOUNTING
-    // -------------------------------------------------
+
+
+
 
     Serial.print(
         "#expected_samples="
@@ -383,9 +383,9 @@ void printRecordFooter(
     );
 
 
-    // -------------------------------------------------
-    // EVENT / IRQ
-    // -------------------------------------------------
+
+
+
 
     Serial.print(
         "#event_irq_count="
@@ -414,9 +414,9 @@ void printRecordFooter(
     );
 
 
-    // -------------------------------------------------
-    // FIFO
-    // -------------------------------------------------
+
+
+
 
     Serial.print(
         "#fifo_batches_processed="
@@ -443,158 +443,98 @@ void printRecordFooter(
     Serial.println(
         footer.finalFifoPartialSamples
     );
-
-
-    // -------------------------------------------------
-    // BUFFER / ORDER
-    // -------------------------------------------------
-
     Serial.print(
         "#ring_peak_occupancy="
     );
-
     Serial.println(
         footer.ringPeakOccupancy
     );
-
-
     Serial.print(
         "#sequence_errors="
     );
-
     Serial.println(
         footer.sequenceErrors
     );
-
-
     Serial.print(
         "#timestamp_order_errors="
     );
-
     Serial.println(
         footer.timestampOrderErrors
     );
-
-
-    // -------------------------------------------------
-    // ERROR COUNTERS
-    // -------------------------------------------------
-
     Serial.print(
         "#i2c_errors="
     );
-
     Serial.println(
         footer.errors.i2c_errors
     );
-
-
     Serial.print(
         "#timeouts="
     );
-
     Serial.println(
         footer.errors.timeouts
     );
-
-
     Serial.print(
         "#disconnects="
     );
-
     Serial.println(
         footer.errors.disconnects
     );
-
-
     Serial.print(
         "#buffer_overflows="
     );
-
     Serial.println(
         footer.errors.buffer_overflows
     );
-
-
     Serial.print(
         "#fifo_overruns="
     );
-
     Serial.println(
         footer.errors.fifo_overruns
     );
-
-
     Serial.print(
         "#dropped_samples="
     );
-
     Serial.println(
         footer.errors.dropped_samples
     );
-
-
     Serial.print(
         "#recovery_attempts="
     );
-
     Serial.println(
         footer.errors.recovery_attempts
     );
-
-
     Serial.print(
         "#recovery_successes="
     );
-
     Serial.println(
         footer.errors.recovery_successes
     );
-
-
     Serial.print(
         "#recovery_failures="
     );
-
     Serial.println(
         footer.errors.recovery_failures
     );
-
-
     Serial.print(
         "#total_errors="
     );
-
     Serial.println(
         footer.errors.total_errors
     );
-
-
-    // -------------------------------------------------
-    // FINAL RESULT
-    // -------------------------------------------------
-
     Serial.print(
         "#stop_reason="
     );
-
     Serial.println(
         footer.stopReason
     );
-
-
     Serial.print(
         "#qc_status="
     );
-
     Serial.println(
         footer.qcStatus
     );
-
-
     Serial.println(
         "#END_RECORD"
     );
 }
-
-} // namespace DataContract
+}

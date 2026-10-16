@@ -1,9 +1,9 @@
 #include "error_manager.h"
 
 
-// =====================================================
-// RESET
-// =====================================================
+
+
+
 
 void ErrorManager::reset()
 {
@@ -22,9 +22,9 @@ void ErrorManager::reset()
 }
 
 
-// =====================================================
-// REPORT ERROR
-// =====================================================
+
+
+
 
 void ErrorManager::report(
     ErrorCode error
@@ -48,9 +48,9 @@ void ErrorManager::report(
 
     switch (error)
     {
-        // ---------------------------------------------
-        // I2C
-        // ---------------------------------------------
+
+
+
 
         case ErrorCode::I2C_ERROR:
 
@@ -59,9 +59,9 @@ void ErrorManager::report(
             break;
 
 
-        // ---------------------------------------------
-        // TIMEOUT
-        // ---------------------------------------------
+
+
+
 
         case ErrorCode::TIMEOUT:
 
@@ -70,9 +70,9 @@ void ErrorManager::report(
             break;
 
 
-        // ---------------------------------------------
-        // SENSOR LOST
-        // ---------------------------------------------
+
+
+
 
         case ErrorCode::SENSOR_DISCONNECT:
 
@@ -81,12 +81,12 @@ void ErrorManager::report(
             break;
 
 
-        // ---------------------------------------------
-        // SAMPLE RING BUFFER FULL
-        //
-        // Policy:
-        // DROP NEWEST.
-        // ---------------------------------------------
+
+
+
+
+
+
 
         case ErrorCode::BUFFER_OVERFLOW:
 
@@ -97,9 +97,9 @@ void ErrorManager::report(
             break;
 
 
-        // ---------------------------------------------
-        // ADXL FIFO OVERRUN
-        // ---------------------------------------------
+
+
+
 
         case ErrorCode::FIFO_OVERRUN:
 
@@ -108,9 +108,9 @@ void ErrorManager::report(
             break;
 
 
-        // ---------------------------------------------
-        // INVALID STATE / COMMAND
-        // ---------------------------------------------
+
+
+
 
         case ErrorCode::INVALID_STATE:
 
@@ -119,9 +119,9 @@ void ErrorManager::report(
             break;
 
 
-        // ---------------------------------------------
-        // INVALID CONFIG
-        // ---------------------------------------------
+
+
+
 
         case ErrorCode::INVALID_CONFIG:
 
@@ -141,12 +141,12 @@ void ErrorManager::report(
 }
 
 
-// =====================================================
-// ADD DROPPED SAMPLES
-//
-// Dùng khi biết có nhiều sample bị mất,
-// ví dụ FIFO overrun thực tế.
-// =====================================================
+
+
+
+
+
+
 
 void ErrorManager::addDroppedSamples(
     uint32_t count
@@ -169,9 +169,9 @@ void ErrorManager::addDroppedSamples(
 }
 
 
-// =====================================================
-// RECOVERY ATTEMPT
-// =====================================================
+
+
+
 
 void ErrorManager::markRecoveryAttempt()
 {
@@ -185,9 +185,9 @@ void ErrorManager::markRecoveryAttempt()
 }
 
 
-// =====================================================
-// RECOVERY SUCCESS
-// =====================================================
+
+
+
 
 void ErrorManager::markRecoverySuccess()
 {
@@ -201,9 +201,9 @@ void ErrorManager::markRecoverySuccess()
 }
 
 
-// =====================================================
-// RECOVERY FAILURE
-// =====================================================
+
+
+
 
 void ErrorManager::markRecoveryFailure()
 {
@@ -217,9 +217,9 @@ void ErrorManager::markRecoveryFailure()
 }
 
 
-// =====================================================
-// GET LAST ERROR
-// =====================================================
+
+
+
 
 ErrorCode ErrorManager::getLastError() const
 {
@@ -240,9 +240,9 @@ ErrorCode ErrorManager::getLastError() const
 }
 
 
-// =====================================================
-// GET COUNTERS
-// =====================================================
+
+
+
 
 ErrorCounters ErrorManager::getCounters() const
 {
@@ -263,9 +263,9 @@ ErrorCounters ErrorManager::getCounters() const
 }
 
 
-// =====================================================
-// ERROR NAME
-// =====================================================
+
+
+
 
 const char* ErrorManager::errorName(
     ErrorCode error

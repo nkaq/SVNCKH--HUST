@@ -3,9 +3,9 @@
 #include <Arduino.h>
 
 
-// =====================================================
-// DAQ STATE MACHINE
-// =====================================================
+
+
+
 
 enum class DaqState : uint8_t
 {
@@ -20,9 +20,9 @@ enum class DaqState : uint8_t
 };
 
 
-// =====================================================
-// ACQUISITION MODE
-// =====================================================
+
+
+
 
 enum class AcquisitionMode : uint8_t
 {
@@ -31,9 +31,9 @@ enum class AcquisitionMode : uint8_t
 };
 
 
-// =====================================================
-// ERROR CODE
-// =====================================================
+
+
+
 
 enum class ErrorCode : uint16_t
 {
@@ -55,9 +55,9 @@ enum class ErrorCode : uint16_t
 };
 
 
-// =====================================================
-// SAMPLE STATUS FLAGS
-// =====================================================
+
+
+
 
 enum SampleStatus : uint16_t
 {
@@ -77,11 +77,11 @@ enum SampleStatus : uint16_t
 };
 
 
-// =====================================================
-// RAW SAMPLE
-//
-// Dùng khi đọc FIFO.
-// =====================================================
+
+
+
+
+
 
 struct RawSample
 {
@@ -93,21 +93,21 @@ struct RawSample
 };
 
 
-// =====================================================
-// SAMPLE PACKET P0.1
-// =====================================================
+
+
+
 
 struct SamplePacket
 {
-    // Sequence number phía EE2
+
     uint32_t sample_index;
 
 
-    // Monotonic timestamp, microsecond
+
     uint64_t timestamp_us;
 
 
-    // Raw accelerometer data
+
     int16_t x_raw;
 
     int16_t y_raw;
@@ -115,56 +115,56 @@ struct SamplePacket
     int16_t z_raw;
 
 
-    // Sample quality/status bitmask
+
     uint16_t status_flags;
 };
 
 
-// =====================================================
-// ERROR / RECOVERY COUNTERS
-// =====================================================
+
+
+
 
 struct ErrorCounters
 {
-    // Tổng error event
+
     uint32_t total_errors = 0;
 
 
-    // I2C transaction error
+
     uint32_t i2c_errors = 0;
 
 
-    // Timeout
+
     uint32_t timeouts = 0;
 
 
-    // Sensor disconnect
+
     uint32_t disconnects = 0;
 
 
-    // Ring buffer overflow
+
     uint32_t buffer_overflows = 0;
 
 
-    // ADXL FIFO overrun
+
     uint32_t fifo_overruns = 0;
 
 
-    // Sample bị drop
+
     uint32_t dropped_samples = 0;
 
 
-    // Command/state không hợp lệ
+
     uint32_t invalid_state = 0;
 
 
-    // Config/command value không hợp lệ
+
     uint32_t invalid_config = 0;
 
 
-    // =============================================
-    // STEP 11 RECOVERY
-    // =============================================
+
+
+
 
     uint32_t recovery_attempts = 0;
 

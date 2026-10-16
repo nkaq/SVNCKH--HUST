@@ -8,9 +8,9 @@
 #include "error_manager.h"
 
 
-// =====================================================
-// PROTOCOL COMMAND TYPES
-// =====================================================
+
+
+
 
 enum class ProtocolCommandType : uint8_t
 {
@@ -29,9 +29,9 @@ enum class ProtocolCommandType : uint8_t
 
     STRESS,
 
-    // =================================================
-    // DAY 2 - FAULT INJECTION
-    // =================================================
+
+
+
 
     FAULT_I2C,
     FAULT_TIMEOUT,
@@ -46,9 +46,9 @@ enum class ProtocolCommandType : uint8_t
 };
 
 
-// =====================================================
-// PROTOCOL COMMAND
-// =====================================================
+
+
+
 
 struct ProtocolCommand
 {
@@ -77,9 +77,9 @@ struct ProtocolCommand
 };
 
 
-// =====================================================
-// PROTOCOL CLASS
-// =====================================================
+
+
+
 
 class Protocol
 {
