@@ -29,12 +29,11 @@ static constexpr uint8_t POWER_MEASURE = 0x08;
 bool ADXL345Driver::begin()
 {
     initialized = false;
+    deviceAddress = 0;
 
     if (!Config::ADXL_HARDWARE_PRESENT)
     {
-        deviceAddress = 0;
-        initialized = true;
-        return true;
+        return false;
     }
 
     if (
@@ -209,12 +208,10 @@ bool ADXL345Driver::configureCommon()
 
 bool ADXL345Driver::selfCheck()
 {
-    if (!Config::ADXL_HARDWARE_PRESENT)
-    {
-        return initialized;
-    }
-
-    if (!initialized)
+    if (
+        !Config::ADXL_HARDWARE_PRESENT ||
+        !initialized
+    )
     {
         return false;
     }
@@ -426,7 +423,7 @@ bool ADXL345Driver::readRaw(
         x = 0;
         y = 0;
         z = 0;
-        return true;
+        return false;
     }
 
     uint8_t raw[6];
@@ -534,32 +531,7 @@ bool ADXL345Driver::readFifo(
 
     if (!Config::ADXL_HARDWARE_PRESENT)
     {
-        uint8_t count =
-            maxSamples;
-
-        if (
-            count >
-            Config::ADXL_FIFO_MAX_SAMPLES
-        )
-        {
-            count =
-                Config::ADXL_FIFO_MAX_SAMPLES;
-        }
-
-        for (
-            uint8_t i = 0;
-            i < count;
-            i++
-        )
-        {
-            samples[i].x = 0;
-            samples[i].y = 0;
-            samples[i].z = 0;
-        }
-
-        samplesRead = count;
-
-        return true;
+        return false;
     }
 
     uint8_t entries = 0;
@@ -655,26 +627,35 @@ bool ADXL345Driver::recover(
 {
     if (!Config::ADXL_HARDWARE_PRESENT)
     {
-        initialized = true;
-        return true;
+        initialized = false;
+        deviceAddress = 0;
+        return false;
     }
 
-    disableInterrupts();
-
-    Wire.end();
-
-    delay(2);
+    if (initialized)
+    {
+        disableInterrupts();
+    }
 
     initialized = false;
     deviceAddress = 0;
 
-    if (!begin())
+    if (!detectDevice())
     {
         return false;
     }
 
+    if (!configureCommon())
+    {
+        return false;
+    }
+
+    initialized = true;
+
     if (!selfCheck())
     {
+        initialized = false;
+        deviceAddress = 0;
         return false;
     }
 
@@ -688,6 +669,9 @@ bool ADXL345Driver::recover(
                 Config::FIFO_WATERMARK
             );
     }
+
+    initialized = false;
+    deviceAddress = 0;
 
     return false;
 }
