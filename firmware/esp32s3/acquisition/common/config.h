@@ -12,11 +12,33 @@ constexpr uint32_t SERIAL_BAUD = 115200;
 constexpr uint16_t RING_BUFFER_CAPACITY = 256;
 constexpr uint16_t EVENT_QUEUE_CAPACITY = 64;
 
+#ifdef EE2_TEST_ADXL_HARDWARE_PRESENT
+constexpr bool ADXL_HARDWARE_PRESENT =
+    EE2_TEST_ADXL_HARDWARE_PRESENT != 0;
+#else
 constexpr bool ADXL_HARDWARE_PRESENT = false;
+#endif
 
+#ifdef EE2_TEST_ADXL_SDA_PIN
+constexpr int ADXL_SDA_PIN =
+    EE2_TEST_ADXL_SDA_PIN;
+#else
 constexpr int ADXL_SDA_PIN = -1;
+#endif
+
+#ifdef EE2_TEST_ADXL_SCL_PIN
+constexpr int ADXL_SCL_PIN =
+    EE2_TEST_ADXL_SCL_PIN;
+#else
 constexpr int ADXL_SCL_PIN = -1;
+#endif
+
+#ifdef EE2_TEST_ADXL_INT_PIN
+constexpr int ADXL_INT_PIN =
+    EE2_TEST_ADXL_INT_PIN;
+#else
 constexpr int ADXL_INT_PIN = -1;
+#endif
 
 constexpr uint32_t I2C_CLOCK_HZ = 400000;
 constexpr uint32_t I2C_TIMEOUT_MS = 20;

@@ -65,6 +65,7 @@ bool ADXL345Driver::begin()
 
     if (!configureCommon())
     {
+        deviceAddress = 0;
         return false;
     }
 
@@ -240,7 +241,7 @@ bool ADXL345Driver::configureDataReady()
 
     if (!Config::ADXL_HARDWARE_PRESENT)
     {
-        return true;
+        return false;
     }
 
     if (!disableInterrupts())
@@ -270,9 +271,14 @@ bool ADXL345Driver::configureDataReady()
 
     uint8_t dummy = 0;
 
-    readInterruptSource(
-        dummy
-    );
+    if (
+        !readInterruptSource(
+            dummy
+        )
+    )
+    {
+        return false;
+    }
 
     if (
         !writeRegister(
@@ -306,7 +312,7 @@ bool ADXL345Driver::configureFifo(
 
     if (!Config::ADXL_HARDWARE_PRESENT)
     {
-        return true;
+        return false;
     }
 
     if (!disableInterrupts())
@@ -371,9 +377,14 @@ bool ADXL345Driver::configureFifo(
 
     uint8_t dummy = 0;
 
-    readInterruptSource(
-        dummy
-    );
+    if (
+        !readInterruptSource(
+            dummy
+        )
+    )
+    {
+        return false;
+    }
 
     if (
         !writeRegister(
@@ -398,7 +409,7 @@ bool ADXL345Driver::disableInterrupts()
 
     if (!Config::ADXL_HARDWARE_PRESENT)
     {
-        return true;
+        return false;
     }
 
     return writeRegister(
@@ -482,7 +493,7 @@ bool ADXL345Driver::getFifoEntries(
 
     if (!Config::ADXL_HARDWARE_PRESENT)
     {
-        return true;
+        return false;
     }
 
     uint8_t status = 0;
@@ -564,6 +575,7 @@ bool ADXL345Driver::readFifo(
             )
         )
         {
+            samplesRead = 0;
             return false;
         }
 
@@ -586,7 +598,7 @@ bool ADXL345Driver::readInterruptSource(
 
     if (!Config::ADXL_HARDWARE_PRESENT)
     {
-        return true;
+        return false;
     }
 
     return readRegister(
@@ -632,10 +644,24 @@ bool ADXL345Driver::recover(
         return false;
     }
 
-    if (initialized)
+    if (
+        Config::ADXL_SDA_PIN < 0 ||
+        Config::ADXL_SCL_PIN < 0 ||
+        Config::ADXL_INT_PIN < 0
+    )
     {
-        disableInterrupts();
+        initialized = false;
+        deviceAddress = 0;
+        return false;
     }
+
+    if (!initialized)
+    {
+        deviceAddress = 0;
+        return false;
+    }
+
+    disableInterrupts();
 
     initialized = false;
     deviceAddress = 0;
@@ -647,6 +673,7 @@ bool ADXL345Driver::recover(
 
     if (!configureCommon())
     {
+        deviceAddress = 0;
         return false;
     }
 
@@ -659,21 +686,33 @@ bool ADXL345Driver::recover(
         return false;
     }
 
+    bool configured = false;
+
+#ifdef EE2_TEST_ADXL_FORCE_MODE_CONFIG_FAIL
+    configured = false;
+#else
     switch (mode)
     {
         case AcquisitionMode::DATA_READY:
-            return configureDataReady();
+            configured = configureDataReady();
+            break;
 
         case AcquisitionMode::FIFO:
-            return configureFifo(
+            configured = configureFifo(
                 Config::FIFO_WATERMARK
             );
+            break;
+    }
+#endif
+
+    if (!configured)
+    {
+        initialized = false;
+        deviceAddress = 0;
+        return false;
     }
 
-    initialized = false;
-    deviceAddress = 0;
-
-    return false;
+    return true;
 }
 
 bool ADXL345Driver::writeRegister(
