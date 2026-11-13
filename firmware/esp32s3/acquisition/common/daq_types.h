@@ -29,7 +29,8 @@ enum class ErrorCode : uint16_t
     BUFFER_OVERFLOW,
     FIFO_OVERRUN,
     INVALID_STATE,
-    INVALID_CONFIG
+    INVALID_CONFIG,
+    TIMESTAMP_ERROR
 };
 
 enum SampleStatus : uint16_t
@@ -69,6 +70,7 @@ struct ErrorCounters
     uint32_t dropped_samples = 0;
     uint32_t invalid_state = 0;
     uint32_t invalid_config = 0;
+    uint32_t timestamp_errors = 0;
     uint32_t recovery_attempts = 0;
     uint32_t recovery_successes = 0;
     uint32_t recovery_failures = 0;
