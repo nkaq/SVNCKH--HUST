@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <esp_timer.h>
 #include <unity.h>
 
 #include "../../acquisition/manager/acquisition_manager.h"
@@ -8,7 +9,6 @@ class FakeAdxlDriver
 public:
     bool read_ok = true;
     uint32_t read_calls = 0;
-
     RawSample sample = {};
 
     bool readRaw(
@@ -40,21 +40,155 @@ public:
 };
 
 static FakeAdxlDriver driver;
+
 static AcquisitionManager<FakeAdxlDriver> manager(
     driver
 );
 
+static hw_timer_t* stopTimer = nullptr;
+
+static volatile bool stopIsrFired = false;
+static volatile bool stopIsrAccepted = false;
+static volatile uint64_t stopIsrTimestamp = 0;
+
+void ARDUINO_ISR_ATTR onStopTimer()
+{
+    if (stopIsrFired)
+    {
+        return;
+    }
+
+    stopIsrAccepted =
+        manager.enqueueAdxlDataReadyFromISR(
+            stopIsrTimestamp
+        );
+
+    stopIsrFired = true;
+}
+
+bool startStopTestTimer()
+{
+    stopIsrFired = false;
+    stopIsrAccepted = false;
+
+    stopTimer =
+        timerBegin(
+            0,
+            80,
+            true
+        );
+
+    if (stopTimer == nullptr)
+    {
+        return false;
+    }
+
+    timerAttachInterrupt(
+        stopTimer,
+        &onStopTimer,
+        true
+    );
+
+    timerAlarmWrite(
+        stopTimer,
+        1000ULL,
+        false
+    );
+
+    timerAlarmEnable(
+        stopTimer
+    );
+
+    return true;
+}
+
+void stopStopTestTimer()
+{
+    if (stopTimer == nullptr)
+    {
+        return;
+    }
+
+    timerAlarmDisable(
+        stopTimer
+    );
+
+    timerDetachInterrupt(
+        stopTimer
+    );
+
+    timerEnd(
+        stopTimer
+    );
+
+    stopTimer = nullptr;
+}
+
+bool waitForStopIsr(
+    uint32_t timeout_ms
+)
+{
+    const uint32_t start =
+        millis();
+
+    while (!stopIsrFired)
+    {
+        if (
+            millis() - start >=
+            timeout_ms
+        )
+        {
+            return false;
+        }
+
+        delay(1);
+    }
+
+    return true;
+}
+
+uint64_t nowUs()
+{
+    return static_cast<uint64_t>(
+        esp_timer_get_time()
+    );
+}
+
+void startDataReadyMode(
+    uint64_t max_age_us = 1000000ULL
+)
+{
+    TEST_ASSERT_TRUE(
+        manager.configureAdxlDataReady(
+            max_age_us
+        )
+    );
+
+    TEST_ASSERT_TRUE(
+        manager.startAcquisition(
+            nowUs()
+        )
+    );
+}
+
 void setUp()
 {
+    stopStopTestTimer();
+
     driver.reset();
     manager.reset();
+
+    stopIsrFired = false;
+    stopIsrAccepted = false;
+    stopIsrTimestamp = 0;
 }
 
 void tearDown()
 {
+    stopStopTestTimer();
 }
 
-void test_scheduled_event_reads_adxl_and_creates_sample()
+void test_periodic_event_reads_adxl_and_creates_sample()
 {
     driver.sample.x = 100;
     driver.sample.y = -200;
@@ -66,23 +200,25 @@ void test_scheduled_event_reads_adxl_and_creates_sample()
         )
     );
 
+    const uint64_t start_us =
+        nowUs();
+
     TEST_ASSERT_TRUE(
-        manager.start(
-            0ULL
+        manager.startAcquisition(
+            start_us
         )
     );
+
+    delay(2);
 
     TEST_ASSERT_EQUAL_UINT8(
         1,
         manager.pollScheduler(
-            1000ULL
+            nowUs()
         )
     );
 
-    TEST_ASSERT_EQUAL_UINT16(
-        1,
-        manager.pendingEventCount()
-    );
+    delay(2);
 
     TEST_ASSERT_EQUAL_UINT16(
         1,
@@ -130,29 +266,48 @@ void test_scheduled_event_reads_adxl_and_creates_sample()
     );
 
     TEST_ASSERT_TRUE(
-        packet.timestamp_us > 0ULL
+        packet.timestamp_us >
+        start_us
+    );
+
+    const AcquisitionManagerStats stats =
+        manager.stats();
+
+    TEST_ASSERT_EQUAL_UINT32(
+        1,
+        stats.events_seen
     );
 
     TEST_ASSERT_EQUAL_UINT32(
         1,
-        manager.stats().events_seen
+        stats.events_handled
     );
 
     TEST_ASSERT_EQUAL_UINT32(
         1,
-        manager.stats().events_handled
+        stats.scheduled_events_observed
+    );
+
+    TEST_ASSERT_TRUE(
+        stats.scheduled_lateness_max_us >
+        0ULL
     );
 }
 
-void test_data_ready_event_preserves_event_timestamp()
+void test_valid_data_ready_preserves_timestamp()
 {
+    startDataReadyMode();
+
     driver.sample.x = 11;
     driver.sample.y = 22;
     driver.sample.z = 33;
 
+    const uint64_t timestamp_us =
+        nowUs();
+
     TEST_ASSERT_TRUE(
         manager.enqueueAdxlDataReady(
-            12345ULL
+            timestamp_us
         )
     );
 
@@ -173,7 +328,7 @@ void test_data_ready_event_preserves_event_timestamp()
 
     TEST_ASSERT_TRUE(
         packet.timestamp_us ==
-        12345ULL
+        timestamp_us
     );
 
     TEST_ASSERT_EQUAL_INT16(
@@ -190,20 +345,91 @@ void test_data_ready_event_preserves_event_timestamp()
         33,
         packet.z_raw
     );
+
+    const AcquisitionManagerStats stats =
+        manager.stats();
+
+    TEST_ASSERT_EQUAL_UINT32(
+        1,
+        stats.events_handled
+    );
+
+    TEST_ASSERT_EQUAL_UINT32(
+        1,
+        stats.data_ready_age_observations
+    );
 }
 
-void test_duplicate_data_ready_timestamp_is_rejected()
+void test_zero_data_ready_timestamp_is_rejected()
 {
+    startDataReadyMode();
+
+    TEST_ASSERT_FALSE(
+        manager.enqueueAdxlDataReady(
+            0ULL
+        )
+    );
+
+    TEST_ASSERT_EQUAL_UINT16(
+        0,
+        manager.pendingEventCount()
+    );
+
+    TEST_ASSERT_EQUAL_UINT32(
+        0,
+        driver.read_calls
+    );
+
+    const AcquisitionManagerStats stats =
+        manager.stats();
+
+    TEST_ASSERT_EQUAL_UINT32(
+        1,
+        stats.invalid_data_ready_timestamps
+    );
+
+    TEST_ASSERT_EQUAL_UINT32(
+        1,
+        stats.dropped_events
+    );
+}
+
+void test_backlogged_data_ready_only_newest_event_can_create_sample()
+{
+    startDataReadyMode();
+
+    driver.sample.x = 777;
+
+    const uint64_t first_timestamp =
+        nowUs();
+
     TEST_ASSERT_TRUE(
         manager.enqueueAdxlDataReady(
-            5000ULL
+            first_timestamp
         )
+    );
+
+    delayMicroseconds(
+        20
+    );
+
+    const uint64_t second_timestamp =
+        nowUs();
+
+    TEST_ASSERT_TRUE(
+        second_timestamp >
+        first_timestamp
     );
 
     TEST_ASSERT_TRUE(
         manager.enqueueAdxlDataReady(
-            5000ULL
+            second_timestamp
         )
+    );
+
+    TEST_ASSERT_EQUAL_UINT16(
+        2,
+        manager.pendingEventCount()
     );
 
     TEST_ASSERT_EQUAL_UINT16(
@@ -214,46 +440,149 @@ void test_duplicate_data_ready_timestamp_is_rejected()
     );
 
     TEST_ASSERT_EQUAL_UINT32(
-        2,
-        manager.stats().events_seen
-    );
-
-    TEST_ASSERT_EQUAL_UINT32(
         1,
-        manager.stats().events_handled
-    );
-
-    TEST_ASSERT_EQUAL_UINT32(
-        1,
-        manager.stats().
-            pipeline_submit_failures
-    );
-
-    TEST_ASSERT_EQUAL_UINT32(
-        1,
-        manager.pipelineErrors().
-            timestamp_errors
-    );
-
-    TEST_ASSERT_EQUAL_UINT32(
-        1,
-        manager.pipelineErrors().
-            dropped_samples
+        driver.read_calls
     );
 
     TEST_ASSERT_EQUAL_UINT16(
         1,
         manager.sampleCount()
     );
+
+    SamplePacket packet = {};
+
+    TEST_ASSERT_TRUE(
+        manager.popSample(
+            packet
+        )
+    );
+
+    TEST_ASSERT_TRUE(
+        packet.timestamp_us ==
+        second_timestamp
+    );
+
+    const AcquisitionManagerStats stats =
+        manager.stats();
+
+    TEST_ASSERT_EQUAL_UINT32(
+        1,
+        stats.stale_data_ready_events
+    );
+
+    TEST_ASSERT_EQUAL_UINT32(
+        1,
+        stats.dropped_events
+    );
+
+    TEST_ASSERT_EQUAL_UINT32(
+        1,
+        stats.events_handled
+    );
+}
+
+void test_stale_data_ready_is_dropped_before_sensor_read()
+{
+    startDataReadyMode(
+        1000ULL
+    );
+
+    const uint64_t timestamp_us =
+        nowUs();
+
+    TEST_ASSERT_TRUE(
+        manager.enqueueAdxlDataReady(
+            timestamp_us
+        )
+    );
+
+    delay(
+        3
+    );
+
+    TEST_ASSERT_EQUAL_UINT16(
+        1,
+        manager.processAvailable(
+            1
+        )
+    );
+
+    TEST_ASSERT_EQUAL_UINT32(
+        0,
+        driver.read_calls
+    );
+
+    TEST_ASSERT_TRUE(
+        manager.samplesEmpty()
+    );
+
+    const AcquisitionManagerStats stats =
+        manager.stats();
+
+    TEST_ASSERT_EQUAL_UINT32(
+        1,
+        stats.stale_data_ready_events
+    );
+
+    TEST_ASSERT_EQUAL_UINT32(
+        1,
+        stats.dropped_events
+    );
+}
+
+void test_future_data_ready_timestamp_is_dropped()
+{
+    startDataReadyMode();
+
+    const uint64_t future_timestamp =
+        nowUs() +
+        1000000ULL;
+
+    TEST_ASSERT_TRUE(
+        manager.enqueueAdxlDataReady(
+            future_timestamp
+        )
+    );
+
+    TEST_ASSERT_EQUAL_UINT16(
+        1,
+        manager.processAvailable(
+            1
+        )
+    );
+
+    TEST_ASSERT_EQUAL_UINT32(
+        0,
+        driver.read_calls
+    );
+
+    TEST_ASSERT_TRUE(
+        manager.samplesEmpty()
+    );
+
+    const AcquisitionManagerStats stats =
+        manager.stats();
+
+    TEST_ASSERT_EQUAL_UINT32(
+        1,
+        stats.data_ready_clock_errors
+    );
+
+    TEST_ASSERT_EQUAL_UINT32(
+        1,
+        stats.dropped_events
+    );
 }
 
 void test_adxl_read_failure_is_visible()
 {
+    startDataReadyMode();
+
     driver.read_ok = false;
 
     TEST_ASSERT_TRUE(
         manager.enqueueAdxlDataReady(
-            1000ULL
+            nowUs()
         )
     );
 
@@ -269,16 +598,60 @@ void test_adxl_read_failure_is_visible()
         driver.read_calls
     );
 
+    TEST_ASSERT_TRUE(
+        manager.samplesEmpty()
+    );
+
+    const AcquisitionManagerStats stats =
+        manager.stats();
+
     TEST_ASSERT_EQUAL_UINT32(
         1,
-        manager.stats().
-            adxl_read_failures
+        stats.adxl_read_failures
     );
 
     TEST_ASSERT_EQUAL_UINT32(
         0,
-        manager.stats().
-            events_handled
+        stats.events_handled
+    );
+}
+
+void test_stop_acquisition_flushes_queued_event()
+{
+    startDataReadyMode();
+
+    TEST_ASSERT_TRUE(
+        manager.enqueueAdxlDataReady(
+            nowUs()
+        )
+    );
+
+    TEST_ASSERT_EQUAL_UINT16(
+        1,
+        manager.pendingEventCount()
+    );
+
+    manager.stopAcquisition();
+
+    TEST_ASSERT_FALSE(
+        manager.running()
+    );
+
+    TEST_ASSERT_EQUAL_UINT16(
+        0,
+        manager.pendingEventCount()
+    );
+
+    TEST_ASSERT_EQUAL_UINT16(
+        0,
+        manager.processAvailable(
+            1
+        )
+    );
+
+    TEST_ASSERT_EQUAL_UINT32(
+        0,
+        driver.read_calls
     );
 
     TEST_ASSERT_TRUE(
@@ -286,8 +659,109 @@ void test_adxl_read_failure_is_visible()
     );
 }
 
-void test_unsupported_source_is_rejected()
+void test_stop_acquisition_rejects_isr_event()
 {
+    startDataReadyMode();
+
+    manager.stopAcquisition();
+
+    stopIsrTimestamp =
+        nowUs();
+
+    TEST_ASSERT_TRUE(
+        startStopTestTimer()
+    );
+
+    TEST_ASSERT_TRUE(
+        waitForStopIsr(
+            1000
+        )
+    );
+
+    stopStopTestTimer();
+
+    TEST_ASSERT_FALSE(
+        stopIsrAccepted
+    );
+
+    TEST_ASSERT_EQUAL_UINT16(
+        0,
+        manager.pendingEventCount()
+    );
+
+    TEST_ASSERT_EQUAL_UINT16(
+        0,
+        manager.processAvailable(
+            1
+        )
+    );
+
+    TEST_ASSERT_EQUAL_UINT32(
+        0,
+        driver.read_calls
+    );
+
+    TEST_ASSERT_TRUE(
+        manager.samplesEmpty()
+    );
+
+    const AcquisitionManagerStats stats =
+        manager.stats();
+
+    TEST_ASSERT_EQUAL_UINT32(
+        1,
+        stats.rejected_while_stopped
+    );
+
+    TEST_ASSERT_EQUAL_UINT32(
+        1,
+        stats.dropped_events
+    );
+}
+
+void test_data_ready_is_rejected_in_periodic_mode()
+{
+    TEST_ASSERT_TRUE(
+        manager.configureAdxlPeriodic(
+            1000ULL
+        )
+    );
+
+    TEST_ASSERT_TRUE(
+        manager.startAcquisition(
+            nowUs()
+        )
+    );
+
+    TEST_ASSERT_FALSE(
+        manager.enqueueAdxlDataReady(
+            nowUs()
+        )
+    );
+
+    TEST_ASSERT_EQUAL_UINT16(
+        0,
+        manager.pendingEventCount()
+    );
+
+    const AcquisitionManagerStats stats =
+        manager.stats();
+
+    TEST_ASSERT_EQUAL_UINT32(
+        1,
+        stats.invalid_mode_events
+    );
+
+    TEST_ASSERT_EQUAL_UINT32(
+        1,
+        stats.dropped_events
+    );
+}
+
+void test_unsupported_source_is_rejected_during_processing()
+{
+    startDataReadyMode();
+
     AcquisitionEvent event = {};
 
     event.source =
@@ -297,7 +771,7 @@ void test_unsupported_source_is_rejected()
         AcquisitionEventType::SAMPLE_DUE;
 
     event.scheduled_time_us =
-        1000ULL;
+        nowUs();
 
     TEST_ASSERT_TRUE(
         manager.enqueue(
@@ -313,12 +787,6 @@ void test_unsupported_source_is_rejected()
     );
 
     TEST_ASSERT_EQUAL_UINT32(
-        1,
-        manager.stats().
-            unsupported_source_events
-    );
-
-    TEST_ASSERT_EQUAL_UINT32(
         0,
         driver.read_calls
     );
@@ -326,10 +794,25 @@ void test_unsupported_source_is_rejected()
     TEST_ASSERT_TRUE(
         manager.samplesEmpty()
     );
+
+    const AcquisitionManagerStats stats =
+        manager.stats();
+
+    TEST_ASSERT_EQUAL_UINT32(
+        1,
+        stats.unsupported_source_events
+    );
+
+    TEST_ASSERT_EQUAL_UINT32(
+        1,
+        stats.dropped_events
+    );
 }
 
 void test_fifo_watermark_is_explicitly_unsupported()
 {
+    startDataReadyMode();
+
     AcquisitionEvent event = {};
 
     event.source =
@@ -339,7 +822,7 @@ void test_fifo_watermark_is_explicitly_unsupported()
         AcquisitionEventType::FIFO_WATERMARK;
 
     event.scheduled_time_us =
-        1000ULL;
+        nowUs();
 
     TEST_ASSERT_TRUE(
         manager.enqueue(
@@ -355,12 +838,6 @@ void test_fifo_watermark_is_explicitly_unsupported()
     );
 
     TEST_ASSERT_EQUAL_UINT32(
-        1,
-        manager.stats().
-            unsupported_type_events
-    );
-
-    TEST_ASSERT_EQUAL_UINT32(
         0,
         driver.read_calls
     );
@@ -368,27 +845,50 @@ void test_fifo_watermark_is_explicitly_unsupported()
     TEST_ASSERT_TRUE(
         manager.samplesEmpty()
     );
+
+    const AcquisitionManagerStats stats =
+        manager.stats();
+
+    TEST_ASSERT_EQUAL_UINT32(
+        1,
+        stats.unsupported_type_events
+    );
+
+    TEST_ASSERT_EQUAL_UINT32(
+        1,
+        stats.dropped_events
+    );
 }
 
 void test_process_available_respects_limit()
 {
-    TEST_ASSERT_TRUE(
-        manager.enqueueAdxlDataReady(
-            1000ULL
-        )
-    );
+    startDataReadyMode();
 
-    TEST_ASSERT_TRUE(
-        manager.enqueueAdxlDataReady(
-            2000ULL
-        )
-    );
+    AcquisitionEvent event = {};
 
-    TEST_ASSERT_TRUE(
-        manager.enqueueAdxlDataReady(
-            3000ULL
-        )
-    );
+    event.source =
+        AcquisitionEventSource::MAX31865;
+
+    event.type =
+        AcquisitionEventType::SAMPLE_DUE;
+
+    for (
+        uint8_t i = 0;
+        i < 3;
+        i++
+    )
+    {
+        event.scheduled_time_us =
+            static_cast<uint64_t>(
+                i + 1
+            );
+
+        TEST_ASSERT_TRUE(
+            manager.enqueue(
+                event
+            )
+        );
+    }
 
     TEST_ASSERT_EQUAL_UINT16(
         2,
@@ -402,19 +902,24 @@ void test_process_available_respects_limit()
         manager.pendingEventCount()
     );
 
-    TEST_ASSERT_EQUAL_UINT16(
+    const AcquisitionManagerStats stats =
+        manager.stats();
+
+    TEST_ASSERT_EQUAL_UINT32(
         2,
-        manager.sampleCount()
+        stats.events_seen
     );
 
     TEST_ASSERT_EQUAL_UINT32(
         2,
-        driver.read_calls
+        stats.unsupported_source_events
     );
 }
 
 void test_event_queue_overflow_is_separate_from_sample_buffer_overflow()
 {
+    startDataReadyMode();
+
     AcquisitionEvent event = {};
 
     event.source =
@@ -463,9 +968,17 @@ void test_event_queue_overflow_is_separate_from_sample_buffer_overflow()
         manager.pipelineErrors().
             dropped_samples
     );
+
+    const AcquisitionManagerStats stats =
+        manager.stats();
+
+    TEST_ASSERT_EQUAL_UINT32(
+        1,
+        stats.dropped_events
+    );
 }
 
-void test_scheduler_missed_intervals_are_visible()
+void test_scheduler_missed_intervals_and_lateness_are_visible()
 {
     TEST_ASSERT_TRUE(
         manager.configureAdxlPeriodic(
@@ -474,7 +987,7 @@ void test_scheduler_missed_intervals_are_visible()
     );
 
     TEST_ASSERT_TRUE(
-        manager.start(
+        manager.startAcquisition(
             0ULL
         )
     );
@@ -493,15 +1006,37 @@ void test_scheduler_missed_intervals_are_visible()
 
     TEST_ASSERT_EQUAL_UINT16(
         1,
-        manager.pendingEventCount()
+        manager.processAvailable(
+            1
+        )
+    );
+
+    const AcquisitionManagerStats stats =
+        manager.stats();
+
+    TEST_ASSERT_EQUAL_UINT32(
+        1,
+        stats.scheduled_events_observed
+    );
+
+    TEST_ASSERT_TRUE(
+        stats.scheduled_lateness_max_us >
+        0ULL
+    );
+
+    TEST_ASSERT_TRUE(
+        stats.scheduled_lateness_total_us >=
+        stats.scheduled_lateness_max_us
     );
 }
 
 void test_reset_clears_manager_state()
 {
+    startDataReadyMode();
+
     TEST_ASSERT_TRUE(
         manager.enqueueAdxlDataReady(
-            1000ULL
+            nowUs()
         )
     );
 
@@ -512,31 +1047,28 @@ void test_reset_clears_manager_state()
         )
     );
 
-    AcquisitionEvent event = {};
-
-    event.source =
-        AcquisitionEventSource::MAX31865;
-
-    for (
-        uint16_t i = 0;
-        i < Config::EVENT_QUEUE_CAPACITY;
-        i++
-    )
-    {
-        TEST_ASSERT_TRUE(
-            manager.enqueue(
-                event
-            )
-        );
-    }
+    manager.stopAcquisition();
 
     TEST_ASSERT_FALSE(
-        manager.enqueue(
-            event
+        manager.enqueueAdxlDataReady(
+            nowUs()
         )
     );
 
     manager.reset();
+
+    TEST_ASSERT_FALSE(
+        manager.running()
+    );
+
+    TEST_ASSERT_EQUAL(
+        static_cast<int>(
+            AdxlTriggerMode::NONE
+        ),
+        static_cast<int>(
+            manager.adxlMode()
+        )
+    );
 
     TEST_ASSERT_EQUAL_UINT16(
         0,
@@ -552,14 +1084,22 @@ void test_reset_clears_manager_state()
         manager.eventQueueOverflowCount()
     );
 
+    const AcquisitionManagerStats stats =
+        manager.stats();
+
     TEST_ASSERT_EQUAL_UINT32(
         0,
-        manager.stats().events_seen
+        stats.events_seen
     );
 
     TEST_ASSERT_EQUAL_UINT32(
         0,
-        manager.stats().events_handled
+        stats.events_handled
+    );
+
+    TEST_ASSERT_EQUAL_UINT32(
+        0,
+        stats.dropped_events
     );
 
     TEST_ASSERT_EQUAL_UINT32(
@@ -571,20 +1111,34 @@ void test_reset_clears_manager_state()
 
 void setup()
 {
-    delay(3000);
+    delay(
+        3000
+    );
 
     UNITY_BEGIN();
 
     RUN_TEST(
-        test_scheduled_event_reads_adxl_and_creates_sample
+        test_periodic_event_reads_adxl_and_creates_sample
     );
 
     RUN_TEST(
-        test_data_ready_event_preserves_event_timestamp
+        test_valid_data_ready_preserves_timestamp
     );
 
     RUN_TEST(
-        test_duplicate_data_ready_timestamp_is_rejected
+        test_zero_data_ready_timestamp_is_rejected
+    );
+
+    RUN_TEST(
+        test_backlogged_data_ready_only_newest_event_can_create_sample
+    );
+
+    RUN_TEST(
+        test_stale_data_ready_is_dropped_before_sensor_read
+    );
+
+    RUN_TEST(
+        test_future_data_ready_timestamp_is_dropped
     );
 
     RUN_TEST(
@@ -592,7 +1146,19 @@ void setup()
     );
 
     RUN_TEST(
-        test_unsupported_source_is_rejected
+        test_stop_acquisition_flushes_queued_event
+    );
+
+    RUN_TEST(
+        test_stop_acquisition_rejects_isr_event
+    );
+
+    RUN_TEST(
+        test_data_ready_is_rejected_in_periodic_mode
+    );
+
+    RUN_TEST(
+        test_unsupported_source_is_rejected_during_processing
     );
 
     RUN_TEST(
@@ -608,7 +1174,7 @@ void setup()
     );
 
     RUN_TEST(
-        test_scheduler_missed_intervals_are_visible
+        test_scheduler_missed_intervals_and_lateness_are_visible
     );
 
     RUN_TEST(
