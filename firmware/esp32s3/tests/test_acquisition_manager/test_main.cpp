@@ -1,6 +1,9 @@
 #include <Arduino.h>
 #include <esp_timer.h>
 #include <unity.h>
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
+#include <freertos/semphr.h>
 
 #include "../../acquisition/manager/acquisition_manager.h"
 
@@ -10,24 +13,23 @@ public:
     bool read_ok = true;
     uint32_t read_calls = 0;
     RawSample sample = {};
+    SemaphoreHandle_t read_entered = nullptr;
+    SemaphoreHandle_t read_release = nullptr;
 
-    bool readRaw(
-        int16_t& x,
-        int16_t& y,
-        int16_t& z
-    )
+    bool readRaw(int16_t& x, int16_t& y, int16_t& z)
     {
-        read_calls++;
-
-        if (!read_ok)
+        ++read_calls;
+        if (read_entered != nullptr && read_release != nullptr)
         {
-            return false;
+            xSemaphoreGive(read_entered);
+            // Bounded wait: a test failure must not deadlock the board.
+            if (xSemaphoreTake(read_release, pdMS_TO_TICKS(3000)) != pdTRUE)
+                return false;
         }
-
+        if (!read_ok) return false;
         x = sample.x;
         y = sample.y;
         z = sample.z;
-
         return true;
     }
 
@@ -36,6 +38,8 @@ public:
         read_ok = true;
         read_calls = 0;
         sample = {};
+        read_entered = nullptr;
+        read_release = nullptr;
     }
 };
 
@@ -50,6 +54,9 @@ static hw_timer_t* stopTimer = nullptr;
 static volatile bool stopIsrFired = false;
 static volatile bool stopIsrAccepted = false;
 static volatile uint64_t stopIsrTimestamp = 0;
+static SemaphoreHandle_t readEntered = nullptr;
+static SemaphoreHandle_t readRelease = nullptr;
+static SemaphoreHandle_t consumerDone = nullptr;
 
 void ARDUINO_ISR_ATTR onStopTimer()
 {
@@ -171,6 +178,38 @@ void startDataReadyMode(
     );
 }
 
+void consumerTask(void*)
+{
+    manager.processAvailable(1);
+    xSemaphoreGive(consumerDone);
+    vTaskDelete(nullptr);
+}
+
+bool startBlockedConsumer()
+{
+    readEntered = xSemaphoreCreateBinary();
+    readRelease = xSemaphoreCreateBinary();
+    consumerDone = xSemaphoreCreateBinary();
+    if (!readEntered || !readRelease || !consumerDone) return false;
+    driver.read_entered = readEntered;
+    driver.read_release = readRelease;
+    if (xTaskCreatePinnedToCore(consumerTask, "ee2-race", 4096,
+                                nullptr, 2, nullptr, 1) != pdPASS)
+        return false;
+    return xSemaphoreTake(readEntered, pdMS_TO_TICKS(2000)) == pdTRUE;
+}
+
+void releaseAndJoinConsumer()
+{
+    if (readRelease) xSemaphoreGive(readRelease);
+    if (consumerDone) xSemaphoreTake(consumerDone, pdMS_TO_TICKS(3500));
+    driver.read_entered = nullptr;
+    driver.read_release = nullptr;
+    if (readEntered) { vSemaphoreDelete(readEntered); readEntered = nullptr; }
+    if (readRelease) { vSemaphoreDelete(readRelease); readRelease = nullptr; }
+    if (consumerDone) { vSemaphoreDelete(consumerDone); consumerDone = nullptr; }
+}
+
 void setUp()
 {
     stopStopTestTimer();
@@ -186,6 +225,7 @@ void setUp()
 void tearDown()
 {
     stopStopTestTimer();
+    if (readEntered || readRelease || consumerDone) releaseAndJoinConsumer();
 }
 
 void test_periodic_event_reads_adxl_and_creates_sample()
@@ -1109,6 +1149,93 @@ void test_reset_clears_manager_state()
     );
 }
 
+// New: deterministic stop/restart while a PERIODIC read is in flight.
+void test_periodic_inflight_read_cannot_cross_session()
+{
+    driver.sample.x = 321;
+    driver.sample.y = 0;
+    driver.sample.z = 0;
+    TEST_ASSERT_TRUE(manager.configureAdxlPeriodic(1000ULL));
+    TEST_ASSERT_TRUE(manager.startAcquisition(nowUs()));
+    AcquisitionEvent event = {};
+    event.source = AcquisitionEventSource::ADXL345;
+    event.type = AcquisitionEventType::SAMPLE_DUE;
+    event.scheduled_time_us = nowUs() - 100ULL;
+    TEST_ASSERT_TRUE(manager.enqueue(event));
+    TEST_ASSERT_TRUE_MESSAGE(startBlockedConsumer(), "Consumer did not enter readRaw");
+    manager.stopAcquisition();
+    TEST_ASSERT_TRUE(manager.startAcquisition(nowUs()));
+    releaseAndJoinConsumer();
+    TEST_ASSERT_EQUAL_UINT16(0, manager.sampleCount());
+    TEST_ASSERT_EQUAL_UINT32(1, manager.stats().dropped_events);
+    TEST_ASSERT_EQUAL_UINT32(0, manager.stats().events_handled);
+    TEST_ASSERT_EQUAL_UINT32(1, driver.read_calls);
+    event.scheduled_time_us = nowUs() - 100ULL;
+    TEST_ASSERT_TRUE(manager.enqueue(event));
+    TEST_ASSERT_EQUAL_UINT16(1, manager.processAvailable(1));
+    TEST_ASSERT_EQUAL_UINT16(1, manager.sampleCount());
+    SamplePacket packet = {};
+    TEST_ASSERT_TRUE(manager.popSample(packet));
+    TEST_ASSERT_EQUAL_UINT32(0, packet.sample_index);
+    TEST_ASSERT_EQUAL_INT16(321, packet.x_raw);
+}
+
+// New: identical stop/restart test for DATA_READY timestamp provenance.
+void test_data_ready_inflight_read_cannot_cross_session()
+{
+    driver.sample.x = 654;
+    driver.sample.y = 0;
+    driver.sample.z = 0;
+    startDataReadyMode(10000000ULL);
+    TEST_ASSERT_TRUE(manager.enqueueAdxlDataReady(nowUs()));
+    TEST_ASSERT_TRUE_MESSAGE(startBlockedConsumer(), "Consumer did not enter readRaw");
+    manager.stopAcquisition();
+    TEST_ASSERT_TRUE(manager.startAcquisition(nowUs()));
+    releaseAndJoinConsumer();
+    TEST_ASSERT_EQUAL_UINT16(0, manager.sampleCount());
+    TEST_ASSERT_EQUAL_UINT32(1, manager.stats().dropped_events);
+    TEST_ASSERT_EQUAL_UINT32(0, manager.stats().events_handled);
+    TEST_ASSERT_EQUAL_UINT32(1, driver.read_calls);
+    const uint64_t new_timestamp_us = nowUs();
+    TEST_ASSERT_TRUE(manager.enqueueAdxlDataReady(new_timestamp_us));
+    TEST_ASSERT_EQUAL_UINT16(1, manager.processAvailable(1));
+    SamplePacket packet = {};
+    TEST_ASSERT_TRUE(manager.popSample(packet));
+    TEST_ASSERT_EQUAL_UINT32(0, packet.sample_index);
+    TEST_ASSERT_EQUAL_INT16(654, packet.x_raw);
+    TEST_ASSERT_TRUE(packet.timestamp_us == new_timestamp_us);
+}
+
+// New: start/stop gate the stream; buffered samples persist until drained.
+void test_stop_restart_preserves_buffer_and_sample_index()
+{
+    startDataReadyMode();
+    driver.sample.x = 10;
+    const uint64_t first = nowUs();
+    TEST_ASSERT_TRUE(manager.enqueueAdxlDataReady(first));
+    TEST_ASSERT_EQUAL_UINT16(1, manager.processAvailable(1));
+    TEST_ASSERT_EQUAL_UINT16(1, manager.sampleCount());
+    manager.stopAcquisition();
+    TEST_ASSERT_EQUAL_UINT16(1, manager.sampleCount());
+    TEST_ASSERT_TRUE(manager.startAcquisition(nowUs()));
+    driver.sample.x = 20;
+    delayMicroseconds(20);
+    const uint64_t second = nowUs();
+    TEST_ASSERT_TRUE(manager.enqueueAdxlDataReady(second));
+    TEST_ASSERT_EQUAL_UINT16(1, manager.processAvailable(1));
+    TEST_ASSERT_EQUAL_UINT16(2, manager.sampleCount());
+    SamplePacket packet = {};
+    TEST_ASSERT_TRUE(manager.popSample(packet));
+    TEST_ASSERT_EQUAL_UINT32(0, packet.sample_index);
+    TEST_ASSERT_EQUAL_INT16(10, packet.x_raw);
+    TEST_ASSERT_TRUE(packet.timestamp_us == first);
+    TEST_ASSERT_TRUE(manager.popSample(packet));
+    TEST_ASSERT_EQUAL_UINT32(1, packet.sample_index);
+    TEST_ASSERT_EQUAL_INT16(20, packet.x_raw);
+    TEST_ASSERT_TRUE(packet.timestamp_us == second);
+    TEST_ASSERT_TRUE(manager.samplesEmpty());
+}
+
 void setup()
 {
     delay(
@@ -1181,6 +1308,9 @@ void setup()
         test_reset_clears_manager_state
     );
 
+    RUN_TEST(test_periodic_inflight_read_cannot_cross_session);
+    RUN_TEST(test_data_ready_inflight_read_cannot_cross_session);
+    RUN_TEST(test_stop_restart_preserves_buffer_and_sample_index);
     UNITY_END();
 }
 
