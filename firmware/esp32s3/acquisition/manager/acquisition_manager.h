@@ -1,3 +1,4 @@
+
 #pragma once
 
 #include <Arduino.h>
@@ -67,6 +68,7 @@ public:
         );
 
         running_ = false;
+        ++session_generation_;
 
         adxl_mode_ =
             AdxlTriggerMode::NONE;
@@ -228,6 +230,11 @@ public:
         return true;
     }
 
+    // Start/stop only gate acquisition; existing packets
+    // and timebase persist.
+    // Before a separate recording: quiesce tasks,
+    // drain/persist packets, then reset explicitly
+    // with provenance tracked by the caller.
     bool startAcquisition(
         uint64_t start_time_us
     )
@@ -256,6 +263,7 @@ public:
 
         latest_adxl_data_ready_timestamp_us_ = 0;
 
+        ++session_generation_;
         running_ = true;
         mode = adxl_mode_;
 
@@ -279,6 +287,7 @@ public:
                 );
 
                 running_ = false;
+                ++session_generation_;
                 event_queue_.clear();
 
                 portEXIT_CRITICAL(
@@ -304,6 +313,7 @@ public:
         );
 
         running_ = false;
+        ++session_generation_;
         latest_adxl_data_ready_timestamp_us_ = 0;
 
         event_queue_.clear();
@@ -674,6 +684,10 @@ public:
                     event
                 );
 
+            // Capture the generation while holding the lock.
+            const uint64_t event_generation =
+                session_generation_;
+
             portEXIT_CRITICAL(
                 &mux_
             );
@@ -684,7 +698,8 @@ public:
             }
 
             handleEvent(
-                event
+                event,
+                event_generation
             );
 
             processed++;
@@ -782,7 +797,8 @@ public:
 
 private:
     bool handleEvent(
-        const AcquisitionEvent& event
+        const AcquisitionEvent& event,
+        uint64_t event_generation
     )
     {
         portENTER_CRITICAL(
@@ -791,7 +807,10 @@ private:
 
         stats_.events_seen++;
 
-        if (!running_)
+        if (
+            !running_ ||
+            session_generation_ != event_generation
+        )
         {
             stats_.rejected_while_stopped++;
             stats_.dropped_events++;
@@ -833,14 +852,16 @@ private:
             case AcquisitionEventType::SAMPLE_DUE:
                 handled =
                     handleAdxlScheduledSample(
-                        event.scheduled_time_us
+                        event.scheduled_time_us,
+                        event_generation
                     );
                 break;
 
             case AcquisitionEventType::DATA_READY:
                 handled =
                     handleAdxlDataReady(
-                        event.scheduled_time_us
+                        event.scheduled_time_us,
+                        event_generation
                     );
                 break;
 
@@ -876,7 +897,8 @@ private:
     }
 
     bool handleAdxlScheduledSample(
-        uint64_t scheduled_time_us
+        uint64_t scheduled_time_us,
+        uint64_t event_generation
     )
     {
         portENTER_CRITICAL(
@@ -885,6 +907,7 @@ private:
 
         if (
             !running_ ||
+            session_generation_ != event_generation ||
             adxl_mode_ !=
                 AdxlTriggerMode::PERIODIC
         )
@@ -983,6 +1006,7 @@ private:
 
         if (
             !running_ ||
+            session_generation_ != event_generation ||
             adxl_mode_ !=
                 AdxlTriggerMode::PERIODIC
         )
@@ -1015,7 +1039,8 @@ private:
     }
 
     bool handleAdxlDataReady(
-        uint64_t timestamp_us
+        uint64_t timestamp_us,
+        uint64_t event_generation
     )
     {
         uint64_t max_age_us = 0;
@@ -1027,6 +1052,7 @@ private:
 
         if (
             !running_ ||
+            session_generation_ != event_generation ||
             adxl_mode_ !=
                 AdxlTriggerMode::DATA_READY
         )
@@ -1188,6 +1214,7 @@ private:
 
         if (
             !running_ ||
+            session_generation_ != event_generation ||
             adxl_mode_ !=
                 AdxlTriggerMode::DATA_READY
         )
@@ -1273,6 +1300,9 @@ private:
     AdxlSamplePipeline adxl_pipeline_;
 
     bool running_ = false;
+
+    // Changed at lifecycle boundaries; protected by mux_.
+    uint64_t session_generation_ = 0;
 
     AdxlTriggerMode adxl_mode_ =
         AdxlTriggerMode::NONE;
